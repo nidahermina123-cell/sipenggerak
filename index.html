@@ -1,78 +1,81 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MPI GAYA BESUREK</title>
     
-    <meta name="theme-color" content="#2563EB">
-    <meta name="description" content="Media Pembelajaran Interaktif Gaya dan Gerak">
-    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: { primary: '#2563EB', secondary: '#22C55E', accent: '#F59E0B' },
-                    fontFamily: { poppins: ['Poppins', 'sans-serif'] }
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#22C55E',
+                        accent: '#F59E0B',
+                    }
                 }
             }
         }
     </script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Confetti for Certificate -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             overflow-x: hidden;
-            /* Latar belakang global diperbarui dengan tautan baru */
-            background-image: url('https://i.imgur.com/kJWSAOp.jpeg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+            background-color: #f3f4f6;
+            transition: background-color 0.3s, color 0.3s;
         }
-
-        /* Overlay halus untuk kontras baca */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 255, 255, 0.15);
-            z-index: -1;
-            pointer-events: none;
+        body.dark {
+            background-color: #111827;
+            color: #f3f4f6;
         }
-
-        /* Overlay gelap untuk Dark Mode */
-        .dark body::before {
-            background: rgba(15, 23, 42, 0.85);
-        }
-
-        /* Glassmorphism Panel */
+        
+        /* Custom Animations */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
         .dark .glass-panel {
-            background: rgba(30, 41, 59, 0.75);
+            background: rgba(31, 41, 55, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Animasi */
-        .floating { animation: floating 3s ease-in-out infinite; }
-        @keyframes floating {
+        .btn-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-hover:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .btn-hover:active {
+            transform: translateY(1px);
+        }
+
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
             0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
+            50% { transform: translateY(-15px); }
             100% { transform: translateY(0px); }
         }
 
@@ -102,910 +105,1205 @@
             transition: 0s;
         }
 
+        /* Background Gambar Aplikasi */
+        .app-bg {
+            background-image: url('https://user20302.na.imgto.link/public/20260802/chatgpt-image-2-agu-2026-17-05-44-1.avif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        .dark .app-bg {
+            background-image: linear-gradient(rgba(17, 24, 39, 0.85), rgba(17, 24, 39, 0.85)), url('https://user20302.na.imgto.link/public/20260802/chatgpt-image-2-agu-2026-17-05-44-1.avif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        /* View Transition Hide/Show */
+        .view-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .view-section.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Specific Game/Sim Styles */
+        #sim-canvas, #ar-canvas, #maze-canvas {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background: #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dark #sim-canvas, .dark #ar-canvas, .dark #maze-canvas {
+            background: #374151;
+        }
+
+        .draggable-item {
+            cursor: grab;
+            touch-action: none;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-
-        canvas { cursor: grab; }
-        canvas:active { cursor: grabbing; }
     </style>
 </head>
-<body class="text-gray-800 dark:text-gray-100 transition-colors duration-300">
+<body class="app-bg min-h-screen flex flex-col relative text-gray-800 antialiased">
 
-    <audio id="bg-music" loop>
-        <source src="https://www.image2url.com/r2/default/audio/1785760327836-37859790-1e57-4f7b-b8e8-971f27ccaa61.mp3" type="audio/mpeg">
-    </audio>
-
-    <div class="fixed top-4 right-4 z-50 flex items-center gap-3 glass-panel px-4 py-2 rounded-full shadow-lg">
-        <div class="flex items-center gap-2 mr-1">
-            <i class="fas fa-volume-down text-gray-700 dark:text-gray-300 text-sm"></i>
-            <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" class="w-16 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer">
-            <i class="fas fa-volume-up text-gray-700 dark:text-gray-300 text-sm"></i>
-        </div>
-        <div class="h-5 w-px bg-gray-400/50"></div>
-        <button id="theme-toggle" class="text-gray-800 dark:text-yellow-400 text-lg hover:scale-110 transition-transform">
+    <!-- Audio & Theme Controls -->
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-2 sm:gap-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-2 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 transition-colors">
+        <i class="fas fa-music text-primary text-sm ml-2 hidden sm:block"></i>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.3" class="w-16 sm:w-24 cursor-pointer accent-blue-600" title="Atur Volume Musik">
+        <div class="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+        <button id="btn-theme" class="w-10 h-10 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-lg text-primary btn-hover ripple shadow-sm">
             <i class="fas fa-moon"></i>
+        </button>
+        <button id="btn-audio" class="w-10 h-10 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-lg text-primary btn-hover ripple shadow-sm">
+            <i class="fas fa-volume-up"></i>
         </button>
     </div>
 
-    <main id="app-container" class="relative w-full h-screen overflow-hidden">
+    <!-- Background Music -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://www.image2url.com/r2/default/audio/1785760327836-37859790-1e57-4f7b-b8e8-971f27ccaa61.mp3" type="audio/mpeg">
+    </audio>
 
-        <section id="page-splash" class="page flex flex-col items-center justify-center min-h-screen relative z-10 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md">
-            <div class="text-center animate__animated animate__fadeIn">
-                <div class="w-32 h-32 mx-auto mb-6 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-blue-500/50 floating">
-                    <i class="fas fa-atom text-6xl text-white"></i>
-                </div>
-                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500 mb-2">MPI GAYA BESUREK</h1>
-                <p class="text-lg font-medium text-gray-600 dark:text-gray-300">Memuat Konten...</p>
+    <!-- MAIN CONTAINER -->
+    <main id="app-container" class="flex-grow flex flex-col relative w-full h-full min-h-screen">
+
+        <!-- 1. SPLASH SCREEN -->
+        <section id="view-splash" class="view-section active flex-col items-center justify-center w-full h-full min-h-screen fixed top-0 left-0 z-40 bg-white dark:bg-gray-900">
+            <div class="text-center w-full max-w-4xl p-4 flex flex-col items-center">
+                <!-- Main Imgur Image -->
+                <img src="https://i.imgur.com/Lwv6ixj.png" alt="MPI Gaya Besurek Main" class="w-full max-w-2xl mx-auto rounded-xl shadow-2xl floating mb-8 border-4 border-primary/20">
                 
-                <div class="w-64 h-3 bg-gray-200 rounded-full mt-6 mx-auto overflow-hidden shadow-inner">
-                    <div id="loading-bar" class="h-full bg-gradient-to-r from-blue-500 to-green-500 w-0 transition-all duration-300 rounded-full"></div>
+                <!-- Secondary Imgur Image positioned attractively -->
+                <div class="relative w-full max-w-md mx-auto h-32 mb-8 flex justify-center">
+                    <img src="https://i.imgur.com/3IzZ7Zu.jpeg" alt="MPI Accent" class="absolute -bottom-10 w-48 h-48 object-cover rounded-full shadow-xl border-4 border-accent animate-pulse z-10">
                 </div>
-                <p id="loading-text" class="mt-2 font-bold text-primary">0%</p>
+
+                <div class="mt-16 w-64 h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner mx-auto">
+                    <div id="splash-progress" class="h-full bg-primary w-0 rounded-full transition-all duration-300"></div>
+                </div>
+                <p id="splash-text" class="mt-4 text-sm font-semibold text-gray-500 dark:text-gray-400">Memuat Aset... 0%</p>
             </div>
         </section>
 
-        <section id="page-opening" class="page hidden relative min-h-screen flex items-end justify-center pb-20">
-            <img src="https://i.imgur.com/kJWSAOp.jpeg" class="absolute inset-0 w-full h-full object-cover z-0" alt="Cover Depan MPI">
+        <!-- 2. OPENING SCREEN -->
+        <section id="view-opening" class="view-section flex-col items-center justify-center w-full min-h-screen relative p-0 overflow-hidden">
             
-            <div class="relative z-10 flex flex-col items-center animate__animated animate__fadeInUp animate__delay-1s">
-                <button onclick="showPage('page-dashboard')" class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-bold text-xl px-12 py-4 rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] hover:shadow-[0_15px_35px_rgba(37,99,235,0.8)] hover:-translate-y-1 transition-all duration-300 flex items-center border-2 border-white/40 ripple">
-                    <i class="fas fa-play mr-3"></i> MULAI BELAJAR
+            <!-- Gambar Utama sebagai Full Background yang diubah -->
+            <img src="https://i.imgur.com/jHWVQT9.jpeg" alt="Cover MPI Gaya dan Gerak" class="absolute inset-0 w-full h-full object-cover object-center z-0">
+            
+            <!-- Overlay tipis agar transisi dan tombol lebih jelas -->
+            <div class="absolute inset-0 bg-black/10 z-0"></div>
+
+            <!-- Kontainer Tombol (Ditempatkan di bagian bawah) -->
+            <div class="relative z-10 w-full flex-grow flex flex-col items-center justify-end pb-24 md:pb-32">
+                <button onclick="navigate('dashboard')" class="px-12 py-5 bg-gradient-to-r from-primary to-blue-600 text-white font-extrabold text-2xl md:text-3xl rounded-full btn-hover ripple shadow-[0_15px_40px_rgba(37,99,235,0.6)] border-4 border-white/40 backdrop-blur-md animate-pulse hover:animate-none">
+                    <i class="fas fa-rocket mr-2"></i> MULAI BELAJAR
                 </button>
             </div>
         </section>
 
-        <section id="page-dashboard" class="page hidden min-h-screen p-6 overflow-y-auto pt-20">
-            <div class="max-w-6xl mx-auto pb-12">
-                <div class="glass-panel p-8 rounded-3xl mb-8 flex flex-col md:flex-row items-center justify-between shadow-xl">
-                    <div>
-                        <h2 class="text-3xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Selamat Datang!</h2>
-                        <p class="text-gray-700 dark:text-gray-200 text-lg">Pilih menu di bawah untuk mulai belajar.</p>
-                    </div>
-                    <div class="mt-4 md:mt-0 flex items-center gap-4">
-                        <div class="text-right hidden sm:block">
-                            <p class="font-bold text-gray-800 dark:text-white">Halo, Siswa Hebat!</p>
-                            <p class="text-sm text-blue-600 dark:text-blue-400 font-semibold" id="user-progress">Progress: 0%</p>
+        <!-- 3. DASHBOARD -->
+        <section id="view-dashboard" class="view-section flex-col items-center w-full min-h-screen p-4 py-12 hidden">
+            <div class="w-full max-w-6xl">
+                <div class="flex justify-between items-center mb-10 glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center gap-4">
+                        <img src="https://user20302.na.imgto.link/public/20260803/file-000000002d788211accb017321225b51.avif" alt="Profil Pengguna" class="w-16 h-16 rounded-full object-cover border-2 border-primary object-top">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800 dark:text-white">Halo, Siswa Hebat!</h2>
+                            <p class="text-gray-500 dark:text-gray-400">Pilih menu belajar hari ini</p>
                         </div>
-                        <img src="https://user20302.na.imgto.link/public/20260803/file-000000002d788211accb017321225b51.avif" alt="Avatar" class="w-16 h-16 rounded-full border-4 border-white shadow-md object-cover object-top">
+                    </div>
+                    <div class="text-right hidden md:block">
+                        <p class="text-sm font-bold text-primary">Progres Belajar</p>
+                        <div class="w-32 h-2 bg-gray-200 rounded-full mt-1">
+                            <div id="dash-progress" class="w-0 h-full bg-secondary rounded-full transition-all"></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <div onclick="showPage('page-panduan')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Panduan</h3>
-                    </div>
+                <!-- Dashboard Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    <!-- Cards -->
+                    <button onclick="navigate('panduan')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-blue-100 text-primary flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-book-open"></i></div>
+                        <span class="font-bold">Panduan</span>
+                    </button>
+                    <button onclick="navigate('tujuan')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-green-100 text-secondary flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-bullseye"></i></div>
+                        <span class="font-bold">Tujuan</span>
+                    </button>
+                    <button onclick="navigate('materi-menu')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-yellow-100 text-accent flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-layer-group"></i></div>
+                        <span class="font-bold">Materi</span>
+                    </button>
+                    <button onclick="navigate('simulasi')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-laptop-code"></i></div>
+                        <span class="font-bold">Simulasi</span>
+                    </button>
+                    <button onclick="navigate('video')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-play-circle"></i></div>
+                        <span class="font-bold">Video</span>
+                    </button>
+                    <button onclick="navigate('ar');" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-vr-cardboard"></i></div>
+                        <span class="font-bold">AR</span>
+                    </button>
+                    
+                    <!-- Menu Projek -->
+                    <button onclick="navigate('projek')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-tools"></i></div>
+                        <span class="font-bold">Projek</span>
+                    </button>
 
-                    <div onclick="showPage('page-tujuan')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Tujuan</h3>
-                    </div>
-
-                    <div onclick="showPage('page-materi')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Materi</h3>
-                    </div>
-
-                    <div onclick="showPage('page-simulasi')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-flask"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Simulasi</h3>
-                    </div>
-
-                    <div onclick="showPage('page-video')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-play-circle"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Video</h3>
-                    </div>
-
-                    <div onclick="showPage('page-ar')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-teal-400 to-teal-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-vr-cardboard"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">AR</h3>
-                    </div>
-
-                    <div onclick="showPage('page-projek')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Projek</h3>
-                    </div>
-
-                    <div onclick="showPage('page-game')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-gamepad"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Game</h3>
-                    </div>
-
-                    <div onclick="showPage('page-kuis')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-pink-400 to-pink-600 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-question-circle"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Kuis</h3>
-                    </div>
-
-                    <div onclick="showPage('page-pengembang')" class="glass-panel p-6 rounded-3xl text-center cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-white/60 border border-white/50 shadow-md group ripple">
-                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-gray-600 to-gray-800 rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg mb-4 group-hover:rotate-12 transition-transform">
-                            <i class="fas fa-user-cog"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white text-xl">Pengembang</h3>
-                    </div>
+                    <button onclick="navigate('game-menu')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-gamepad"></i></div>
+                        <span class="font-bold">Game</span>
+                    </button>
+                    <button onclick="startKuis()" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200 border-2 border-primary">
+                        <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-question-circle"></i></div>
+                        <span class="font-bold">Kuis</span>
+                    </button>
+                    <button onclick="navigate('pengembang')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-user-graduate"></i></div>
+                        <span class="font-bold">Pengembang</span>
+                    </button>
+                    <button onclick="navigate('referensi')" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200">
+                        <div class="w-16 h-16 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-list-alt"></i></div>
+                        <span class="font-bold">Referensi</span>
+                    </button>
+                    <button onclick="confirmExit()" class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 btn-hover text-gray-700 dark:text-gray-200 bg-red-50 dark:bg-red-900/20 border border-red-200">
+                        <div class="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-sign-out-alt"></i></div>
+                        <span class="font-bold text-red-600">Keluar</span>
+                    </button>
                 </div>
             </div>
         </section>
 
-        <section id="page-panduan" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-4xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4">Panduan Penggunaan</h2>
+        <!-- REUSABLE HEADER FOR SUBPAGES -->
+        <div id="subpage-header" class="hidden w-full p-4 z-30 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm">
+            <button onclick="navigate('dashboard')" class="text-primary hover:bg-blue-100 dark:hover:bg-gray-800 p-2 rounded-lg font-bold flex items-center gap-2 transition">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </button>
+            <h2 id="subpage-title" class="text-xl font-bold text-gray-800 dark:text-white uppercase tracking-wider">Title</h2>
+            <div class="w-10"></div> <!-- Spacer -->
+        </div>
+
+        <section id="view-panduan" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-8 rounded-2xl">
+                <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6 transition-all duration-300">
+                    <button id="btn-panduan-guru" onclick="switchPanduan('guru')" class="px-6 py-3 font-bold text-primary border-b-2 border-primary w-1/2">Panduan Guru</button>
+                    <button id="btn-panduan-siswa" onclick="switchPanduan('siswa')" class="px-6 py-3 font-bold text-gray-500 border-b-2 border-transparent w-1/2">Panduan Siswa</button>
                 </div>
                 
-                <div class="glass-panel p-8 rounded-3xl shadow-xl">
-                    <div class="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                        <button onclick="document.getElementById('tab-guru').classList.remove('hidden'); document.getElementById('tab-siswa').classList.add('hidden'); this.classList.add('text-primary','border-b-2','border-primary'); this.nextElementSibling.classList.remove('text-primary','border-b-2','border-primary');" class="font-bold text-lg text-primary border-b-2 border-primary pb-2 px-4 transition-all">Panduan Guru</button>
-                        <button onclick="document.getElementById('tab-siswa').classList.remove('hidden'); document.getElementById('tab-guru').classList.add('hidden'); this.classList.add('text-primary','border-b-2','border-primary'); this.previousElementSibling.classList.remove('text-primary','border-b-2','border-primary');" class="font-bold text-lg text-gray-500 pb-2 px-4 transition-all">Panduan Siswa</button>
-                    </div>
-                    
-                    <div id="tab-guru" class="space-y-4">
-                        <h3 class="text-xl font-bold text-primary"><i class="fas fa-chalkboard-teacher mr-2"></i>Petunjuk Bagi Guru</h3>
-                        <p>1. Manfaatkan menu <strong>Tujuan</strong> untuk meninjau ketercapaian Capaian Pembelajaran (CP) Fase B Kelas IV.</p>
-                        <p>2. Arahkan siswa mengeksplorasi modul materi secara runtut mulai dari Gaya Otot, Gaya Gesek, hingga Gaya Gravitasi.</p>
-                        <p>3. Tampilkan menu <strong>Simulasi</strong> dan <strong>AR</strong> melalui proyektor atau gawai siswa untuk mengamati gaya secara visual 3D.</p>
-                        <p>4. Evaluasi kompetensi peserta didik menggunakan menu <strong>Kuis</strong> pada akhir pertemuan.</p>
-                    </div>
-
-                    <div id="tab-siswa" class="space-y-4 hidden">
-                        <h3 class="text-xl font-bold text-green-600"><i class="fas fa-user-graduate mr-2"></i>Petunjuk Bagi Siswa</h3>
-                        <p>1. Buka menu <strong>Materi</strong> untuk membaca ringkasan dan mengamati contoh interaktif.</p>
-                        <p>2. Lakukan eksperimen mandiri di menu <strong>Simulasi</strong> dengan menggeser kekuatan dorong dan memilih permukaan.</p>
-                        <p>3. Simak <strong>Video</strong> dan pelajari rancangan pembuatan alat di menu <strong>Projek</strong>.</p>
-                        <p>4. Mainkan <strong>Game</strong> mencocokkan gaya untuk melatih ketelitian.</p>
-                        <p>5. Kerjakan <strong>Kuis</strong> untuk menguji pemahaman dan raih sertifikat digital kelulusan.</p>
-                    </div>
+                <!-- Panduan Guru -->
+                <div id="content-panduan-guru" class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                    <h3 class="text-2xl font-bold mb-4">Petunjuk Penggunaan Aplikasi (Guru)</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Aplikasi ini dirancang untuk kelas IV SD dengan materi Gaya dan Gerak.</li>
+                        <li>Gunakan menu "Materi" untuk mengajarkan teori dan konsep dasar kepada siswa.</li>
+                        <li>Arahkan siswa ke menu "Simulasi" dan "AR" untuk eksplorasi dan eksperimen visual mandiri.</li>
+                        <li>Gunakan menu "Game" untuk menguji pemahaman awal secara menyenangkan.</li>
+                        <li>Evaluasi kemampuan siswa secara sumatif melalui menu "Kuis" yang dilengkapi timer dan penilaian otomatis.</li>
+                    </ul>
                 </div>
-            </div>
-        </section>
 
-        <section id="page-tujuan" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-4xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4">Tujuan Pembelajaran</h2>
-                </div>
-                
-                <div class="glass-panel p-8 rounded-3xl shadow-xl relative overflow-hidden">
-                    <div class="absolute -right-10 -top-10 opacity-10 text-9xl text-green-500"><i class="fas fa-bullseye"></i></div>
-                    
-                    <h3 class="text-2xl font-bold text-primary border-b-2 border-primary pb-2 mb-4 inline-block">Capaian Pembelajaran (CP) - IPAS Kelas IV</h3>
-                    <p class="text-lg leading-relaxed mb-6">
-                        Peserta didik mengidentifikasi ragam gaya yang terlibat dalam aktivitas sehari-hari dan memanfaatkan gaya tersebut untuk membantu manusia mengatasi tantangan dalam kehidupan sehari-hari.
-                    </p>
-
-                    <h3 class="text-2xl font-bold text-green-600 border-b-2 border-green-600 pb-2 mb-4 inline-block mt-2">Indikator Ketercapaian</h3>
-                    <ul class="space-y-4 text-lg">
-                        <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3 text-xl"></i> Peserta didik mampu menjelaskan pengertian gaya otot, gaya gesek, dan gaya gravitasi.</li>
-                        <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3 text-xl"></i> Peserta didik dapat menganalisis pengaruh jenis permukaan terhadap gaya gesek suatu benda.</li>
-                        <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3 text-xl"></i> Peserta didik dapat membuktikan pengaruh tarikan gravitasi bumi terhadap gerak jatuh benda.</li>
+                <!-- Panduan Siswa -->
+                <div id="content-panduan-siswa" class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 hidden">
+                    <h3 class="text-2xl font-bold mb-4">Petunjuk Belajar (Siswa)</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Mulai belajarmu dengan mengecek <strong>Tujuan Pembelajaran</strong>.</li>
+                        <li>Buka menu <strong>Materi</strong> dan baca penjelasan mengenai Gaya Otot, Gaya Gesek, dan Gaya Gravitasi.</li>
+                        <li>Tonton <strong>Video</strong> pembelajaran dengan teliti agar kamu lebih paham.</li>
+                        <li>Bermainlah dengan <strong>Simulasi</strong> atau proyeksikan benda 3D di menu <strong>AR</strong>.</li>
+                        <li>Selesaikan tantangan di menu <strong>Game</strong> untuk melatih logikamu.</li>
+                        <li>Uji kemampuanmu di menu <strong>Kuis</strong>. Kumpulkan nilai di atas 80 untuk mendapatkan Sertifikat Bintang Emas!</li>
                     </ul>
                 </div>
             </div>
         </section>
 
-        <section id="page-materi" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-5xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4">Materi Gaya & Gerak</h2>
-                </div>
-
-                <div class="flex flex-wrap gap-2 mb-6">
-                    <button onclick="switchMateri('otot')" id="btn-materi-otot" class="materi-tab bg-primary text-white px-6 py-3 rounded-full font-bold shadow-md hover:-translate-y-1 transition-all"><i class="fas fa-dumbbell mr-2"></i>Gaya Otot</button>
-                    <button onclick="switchMateri('gesek')" id="btn-materi-gesek" class="materi-tab bg-white dark:bg-slate-700 text-gray-700 dark:text-white px-6 py-3 rounded-full font-bold shadow-md hover:-translate-y-1 transition-all"><i class="fas fa-road mr-2"></i>Gaya Gesek</button>
-                    <button onclick="switchMateri('gravitasi')" id="btn-materi-gravitasi" class="materi-tab bg-white dark:bg-slate-700 text-gray-700 dark:text-white px-6 py-3 rounded-full font-bold shadow-md hover:-translate-y-1 transition-all"><i class="fas fa-globe-americas mr-2"></i>Gaya Gravitasi</button>
-                </div>
-
-                <div id="materi-otot" class="materi-content glass-panel p-8 rounded-3xl shadow-xl animate__animated animate__fadeIn">
-                    <div class="grid md:grid-cols-2 gap-8 items-center">
-                        <div>
-                            <h3 class="text-3xl font-bold text-primary mb-4">1. Gaya Otot</h3>
-                            <p class="text-lg mb-4">Gaya otot adalah gaya yang dihasilkan oleh otot tubuh manusia atau hewan. Gaya ini berupa tarikan atau dorongan yang memungkinkan kita berpindah tempat atau memindahkan benda.</p>
-                            <div class="bg-blue-100/80 dark:bg-blue-900/50 p-4 rounded-xl border-l-4 border-blue-500 mb-4">
-                                <strong>Penerapan Sehari-hari:</strong> Mendorong meja belajar, menendang bola ke gawang, mengayuh sepeda, serta mengangkat barang bawaan.
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <div class="relative h-64 bg-white/60 dark:bg-slate-800/60 rounded-2xl flex items-center justify-center overflow-hidden border-2 border-blue-200">
-                                <i id="anim-otot-orang" class="fas fa-running text-6xl text-primary absolute left-10 transition-all duration-300"></i>
-                                <div id="anim-otot-box" class="w-16 h-16 bg-orange-500 rounded-lg absolute left-32 transition-all duration-300 flex items-center justify-center text-white"><i class="fas fa-box text-2xl"></i></div>
-                            </div>
-                            <div class="mt-4">
-                                <label class="font-bold block mb-1">Kekuatan Dorong Siswa:</label>
-                                <input type="range" min="0" max="100" value="0" class="w-full cursor-pointer" oninput="document.getElementById('anim-otot-orang').style.left = (10 + this.value*2) + 'px'; document.getElementById('anim-otot-box').style.left = (32 + this.value*2) + 'px';">
-                            </div>
-                        </div>
+        <section id="view-tujuan" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-8 rounded-2xl bg-gradient-to-br from-green-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 class="text-3xl font-extrabold text-secondary mb-6 text-center border-b-2 border-secondary pb-4">Capaian Pembelajaran</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md border-l-4 border-primary">
+                        <i class="fas fa-lightbulb text-3xl text-primary mb-4 block"></i>
+                        <p class="text-gray-700 dark:text-gray-200">Peserta didik mengidentifikasi ragam gaya yang terlibat dalam aktivitas sehari-hari dan memanfaatkan gaya tersebut untuk membantu manusia mengatasi tantangan dalam kehidupan sehari-hari.</p>
                     </div>
-                </div>
-
-                <div id="materi-gesek" class="materi-content hidden glass-panel p-8 rounded-3xl shadow-xl animate__animated animate__fadeIn">
-                    <h3 class="text-3xl font-bold text-secondary mb-4">2. Gaya Gesek</h3>
-                    <p class="text-lg mb-4">Gaya gesek timbul ketika dua permukaan benda saling bersentuhan langsung. Arah gaya gesek selalu berlawanan dengan arah gerak benda, sehingga berfungsi memperlambat atau menahan laju benda.</p>
-                    <p class="text-lg mb-6 font-semibold">Semakin kasar permukaan suatu bidang, semakin besar gaya gesek yang dihasilkan!</p>
-                    
-                    <div class="bg-white/60 dark:bg-slate-800/60 p-6 rounded-2xl text-center">
-                        <div class="flex flex-wrap justify-center gap-4 mb-4">
-                            <button onclick="setGesekan('es')" class="px-4 py-2 bg-blue-200 text-blue-900 rounded-lg font-bold hover:bg-blue-300 transition-colors">Permukaan Es (Licin)</button>
-                            <button onclick="setGesekan('kayu')" class="px-4 py-2 bg-amber-200 text-amber-900 rounded-lg font-bold hover:bg-amber-300 transition-colors">Lantai Kayu (Sedang)</button>
-                            <button onclick="setGesekan('aspal')" class="px-4 py-2 bg-gray-400 text-gray-900 rounded-lg font-bold hover:bg-gray-500 transition-colors">Jalan Aspal (Kasar)</button>
-                        </div>
-                        <div id="arena-gesek" class="h-32 bg-blue-100 rounded-xl relative overflow-hidden flex items-end transition-colors duration-500 border border-black/10">
-                            <div id="balok-gesek" class="w-12 h-12 bg-red-500 rounded absolute bottom-0 left-0 transition-all duration-[2000ms] ease-out flex items-center justify-center text-white"><i class="fas fa-cube"></i></div>
-                        </div>
-                        <button onclick="luncurkanBalok()" class="mt-4 bg-green-600 text-white px-8 py-2.5 rounded-full font-bold shadow-md hover:bg-green-700 transition-all"><i class="fas fa-play mr-2"></i>Luncurkan Balok</button>
-                    </div>
-                </div>
-
-                <div id="materi-gravitasi" class="materi-content hidden glass-panel p-8 rounded-3xl shadow-xl animate__animated animate__fadeIn">
-                    <h3 class="text-3xl font-bold text-purple-600 mb-4">3. Gaya Gravitasi</h3>
-                    <p class="text-lg mb-4">Gaya gravitasi bumi adalah gaya tarik yang dialami oleh semua benda menuju ke pusat bumi. Gravitasi menyebabkan benda yang dilepaskan di udara selalu jatuh menuju ke bawah ke permukaan tanah.</p>
-                    
-                    <div class="flex flex-col items-center bg-blue-50/70 dark:bg-slate-800/70 p-6 rounded-2xl mt-6 relative h-96 overflow-hidden border border-white/40">
-                        <p class="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2">Klik salah satu benda untuk menjatuhkannya:</p>
-                        <div class="flex gap-8 mb-auto z-10 pt-2">
-                            <button onclick="jatuhkanBenda('apel')" class="text-4xl hover:scale-125 transition-transform" title="Jatuhkan Apel">🍎</button>
-                            <button onclick="jatuhkanBenda('bola')" class="text-4xl hover:scale-125 transition-transform" title="Jatuhkan Bola">🏀</button>
-                            <button onclick="jatuhkanBenda('batu')" class="text-4xl hover:scale-125 transition-transform" title="Jatuhkan Batu">🪨</button>
-                        </div>
-                        <div id="benda-jatuh" class="absolute top-24 text-4xl transition-all duration-1000 ease-in opacity-0"></div>
-                        <div class="w-[150%] h-32 bg-green-500 rounded-[100%] absolute -bottom-16 flex justify-center pt-2 text-white font-bold">Permukaan Tanah (Bumi)</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="page-simulasi" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-5xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4 text-gray-800 dark:text-white drop-shadow-sm">Simulasi Fisika 2D</h2>
-                </div>
-
-                <div class="glass-panel p-6 rounded-3xl shadow-xl flex flex-col items-center">
-                    <div class="relative w-full max-w-4xl bg-sky-100 dark:bg-slate-800 rounded-2xl overflow-hidden border-4 border-white/60 shadow-inner">
-                        <canvas id="simulasiCanvas" width="800" height="400" class="w-full h-auto"></canvas>
-                    </div>
-                    
-                    <div class="mt-6 w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white/80 dark:bg-slate-700/80 p-4 rounded-2xl text-center shadow-sm">
-                            <h4 class="font-bold mb-2">Gaya Dorong (Otot)</h4>
-                            <input type="range" id="sim-dorong" min="0" max="100" value="0" class="w-full cursor-pointer">
-                        </div>
-                        <div class="bg-white/80 dark:bg-slate-700/80 p-4 rounded-2xl text-center shadow-sm">
-                            <h4 class="font-bold mb-2">Permukaan Bidang (Gesek)</h4>
-                            <select id="sim-permukaan" class="w-full p-2 rounded-lg bg-gray-100 dark:bg-slate-600 text-gray-800 dark:text-white border outline-none">
-                                <option value="0.01">Es (Sangat Licin)</option>
-                                <option value="0.05" selected>Lantai Keramik (Sedang)</option>
-                                <option value="0.15">Rumput / Karpet (Kasar)</option>
-                            </select>
-                        </div>
-                        <div class="bg-white/80 dark:bg-slate-700/80 p-4 rounded-2xl text-center flex items-center justify-center shadow-sm">
-                            <button onclick="resetSimulasi()" class="bg-red-500 text-white px-6 py-2.5 rounded-full font-bold shadow-md hover:bg-red-600 w-full transition-all"><i class="fas fa-undo mr-2"></i>Reset Posisi Balok</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="page-ar" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-5xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4">Augmented Reality (AR)</h2>
-                </div>
-
-                <div class="glass-panel p-8 rounded-3xl shadow-xl">
-                    <p class="text-center text-lg mb-8 font-medium">Pilih salah satu materi di bawah ini untuk menampilkan visual interaktif 3D/AR Assemblr Edu:</p>
-                    
-                    <div class="flex flex-col md:flex-row justify-center gap-4 mb-8">
-                        <button onclick="showAR('otot')" class="bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:bg-blue-700 hover:-translate-y-1 transition-all flex-1 flex justify-center items-center gap-2">
-                            <i class="fas fa-dumbbell"></i> Gaya Otot
-                        </button>
-                        <button onclick="showAR('gesek')" class="bg-orange-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:bg-orange-600 hover:-translate-y-1 transition-all flex-1 flex justify-center items-center gap-2">
-                            <i class="fas fa-road"></i> Gaya Gesek
-                        </button>
-                        <button onclick="showAR('gravitasi')" class="bg-purple-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:bg-purple-700 hover:-translate-y-1 transition-all flex-1 flex justify-center items-center gap-2">
-                            <i class="fas fa-globe"></i> Gaya Gravitasi
-                        </button>
-                    </div>
-
-                    <div id="ar-container" class="relative w-full h-[600px] bg-black rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.4)] border-4 border-white/30 hidden animate__animated animate__fadeIn">
-                        <iframe id="ar-iframe" src="" class="absolute top-0 left-0 w-full h-full border-none" allow="camera; microphone; gyroscope; accelerometer; magnetometer; xr-spatial-tracking; fullscreen" allowFullScreen></iframe>
-                    </div>
-                    
-                    <div id="ar-placeholder" class="w-full h-64 border-4 border-dashed border-gray-400/50 rounded-2xl flex flex-col items-center justify-center text-gray-500">
-                        <i class="fas fa-vr-cardboard text-6xl mb-4 opacity-50"></i>
-                        <p class="font-semibold text-lg">Pilih materi untuk menampilkan media AR 3D</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="page-projek" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-5xl mx-auto pb-12">
-                <div class="flex items-center mb-8 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-4 rounded-2xl border border-white/40 shadow-sm">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-xl shadow-md text-gray-700 dark:text-white hover:bg-blue-500 hover:text-white transition-all">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-6 text-gray-800 dark:text-white flex items-center">
-                        <i class="fas fa-rocket text-blue-500 mr-3"></i> Projek Alat Peraga
-                    </h2>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="glass-panel p-8 rounded-3xl shadow-lg border border-white/50 relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 opacity-10 text-8xl text-blue-500"><i class="fas fa-box-open"></i></div>
-                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 border-b-2 border-blue-300 pb-3 inline-block">
-                            <i class="fas fa-cubes text-blue-500 mr-2"></i> Bahan-bahan
-                        </h3>
-                        <ul class="space-y-4 text-gray-700 dark:text-gray-200 text-lg">
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 1. 4 Tutup Botol</li>
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 2. Lidi 2 Buah</li>
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 3. Botol Kotak 1</li>
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 4. Balon 2 Buah</li>
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 5. Sedotan</li>
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 6. Kertas Origami</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="glass-panel p-8 rounded-3xl shadow-lg border border-white/50 relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 opacity-10 text-8xl text-orange-500"><i class="fas fa-tools"></i></div>
-                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 border-b-2 border-orange-300 pb-3 inline-block">
-                            <i class="fas fa-tools text-orange-500 mr-2"></i> Alat yang Digunakan
-                        </h3>
-                        <ul class="space-y-4 text-gray-700 dark:text-gray-200 text-lg">
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 1. Gunting</li>
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 2. Lem Kertas</li>
-                            <li class="flex items-center bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl"><i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i> 3. Lem Tembak</li>
+                    <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md border-l-4 border-accent">
+                        <i class="fas fa-check-circle text-3xl text-accent mb-4 block"></i>
+                        <h4 class="font-bold mb-2 text-gray-800 dark:text-white">Tujuan Spesifik:</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
+                            <li>Memahami konsep gaya otot dan pengaruhnya.</li>
+                            <li>Menganalisis gaya gesek pada berbagai permukaan.</li>
+                            <li>Mengidentifikasi gaya gravitasi bumi dan efeknya terhadap benda.</li>
                         </ul>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="glass-panel p-8 rounded-3xl shadow-xl border border-white/50">
-                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-                        <i class="fab fa-youtube text-red-500 mr-2"></i> Langkah-langkah Mengerjakan Projek
-                    </h3>
-                    <div class="relative w-full rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.2)] bg-black" style="padding-top: 56.25%;">
-                        <iframe class="absolute top-0 left-0 w-full h-full" 
-                            src="https://www.youtube.com/embed/MiS7fLMBWG8?si=eq9KMGQt59ZJdtfp" 
-                            title="YouTube video player" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            referrerpolicy="strict-origin-when-cross-origin" 
-                            allowfullscreen>
-                        </iframe>
+        <section id="view-materi-menu" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6">
+                <button onclick="navigate('materi-otot')" class="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center gap-4 btn-hover hover:border-primary">
+                    <img src="https://i.imgur.com/3IzZ7Zu.jpeg" class="w-32 h-32 rounded-full object-cover shadow-lg border-4 border-primary">
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Gaya Otot</h3>
+                    <p class="text-sm text-gray-500 text-center">Tarikan atau dorongan yang dihasilkan otot tubuh.</p>
+                </button>
+                <button onclick="navigate('materi-gesek')" class="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center gap-4 btn-hover hover:border-accent">
+                    <div class="w-32 h-32 rounded-full bg-accent text-white flex items-center justify-center text-6xl shadow-lg"><i class="fas fa-road"></i></div>
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Gaya Gesek</h3>
+                    <p class="text-sm text-gray-500 text-center">Gaya yang menahan gerak benda di permukaan.</p>
+                </button>
+                <button onclick="navigate('materi-gravitasi')" class="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center gap-4 btn-hover hover:border-primary">
+                    <div class="w-32 h-32 rounded-full bg-blue-600 text-white flex items-center justify-center text-6xl shadow-lg"><i class="fas fa-globe-americas"></i></div>
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Gaya Gravitasi</h3>
+                    <p class="text-sm text-gray-500 text-center">Gaya tarik bumi terhadap benda-benda.</p>
+                </button>
+            </div>
+        </section>
+
+        <section id="view-materi-otot" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-6 rounded-2xl">
+                <h3 class="text-3xl font-bold text-primary mb-4"><i class="fas fa-dumbbell mr-2"></i> Gaya Otot</h3>
+                <p class="mb-6 text-gray-700 dark:text-gray-300">Gaya otot adalah gaya yang dikeluarkan dari otot manusia atau hewan. Contohnya saat kita mendorong meja, mengangkat buku, atau menendang bola.</p>
+                
+                <div class="bg-blue-50 dark:bg-gray-800 p-6 rounded-xl text-center border border-blue-200 dark:border-gray-700 relative overflow-hidden h-64 flex flex-col items-center justify-center">
+                    <h4 class="font-bold text-gray-600 dark:text-gray-300 mb-4">Interaktif: Coba dorong kotaknya!</h4>
+                    <div class="w-full max-w-md mx-auto relative h-20 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden border-b-4 border-gray-400">
+                        <div id="otot-box" class="absolute left-0 bottom-0 w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded text-white flex items-center justify-center font-bold text-2xl shadow-lg transition-all duration-300 ease-out z-10">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div id="otot-person" class="absolute left-[-40px] bottom-0 w-16 h-16 text-4xl transition-all duration-300 z-20" style="transform: scaleX(-1);">
+                            🧍
+                        </div>
+                    </div>
+                    <div class="w-full max-w-md mx-auto mt-6 flex items-center gap-4">
+                        <span class="text-sm font-bold">Lemah</span>
+                        <input type="range" id="slider-otot" min="0" max="100" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <span class="text-sm font-bold">Kuat</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="page-video" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-4xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4">Video Pembelajaran</h2>
+        <section id="view-materi-gesek" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-6 rounded-2xl">
+                <h3 class="text-3xl font-bold text-accent mb-4"><i class="fas fa-skating mr-2"></i> Gaya Gesek</h3>
+                <p class="mb-6 text-gray-700 dark:text-gray-300">Gaya gesek terjadi saat dua permukaan benda saling bersentuhan. Permukaan kasar = gaya gesek besar. Permukaan licin = gaya gesek kecil.</p>
+                
+                <div class="grid grid-cols-4 gap-2 mb-4">
+                    <button onclick="setSurface('es')" class="p-2 rounded bg-cyan-100 border-2 border-cyan-400 font-bold hover:bg-cyan-200">Es (Licin)</button>
+                    <button onclick="setSurface('kayu')" class="p-2 rounded bg-amber-100 border-2 border-amber-600 font-bold hover:bg-amber-200">Kayu</button>
+                    <button onclick="setSurface('aspal')" class="p-2 rounded bg-gray-300 border-2 border-gray-800 font-bold hover:bg-gray-400">Aspal (Kasar)</button>
+                    <button onclick="setSurface('rumput')" class="p-2 rounded bg-green-200 border-2 border-green-700 font-bold hover:bg-green-300">Rumput</button>
                 </div>
                 
-                <div class="glass-panel p-6 rounded-3xl shadow-xl border border-white/40">
-                    <div class="relative w-full rounded-2xl overflow-hidden shadow-inner bg-black" style="padding-top: 56.25%;">
-                        <iframe class="absolute top-0 left-0 w-full h-full" 
-                                src="https://www.youtube.com/embed/epR7fu-wKRQ?si=3-Hk1XV6elYFeRiJ" 
-                                title="YouTube video player" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                referrerpolicy="strict-origin-when-cross-origin" 
-                                allowfullscreen>
-                        </iframe>
+                <div id="gesek-surface" class="w-full h-32 bg-amber-100 border-b-8 border-amber-600 relative overflow-hidden rounded-t-xl transition-colors duration-500">
+                    <div id="gesek-block" class="absolute left-4 bottom-0 w-16 h-16 bg-blue-600 rounded text-white flex items-center justify-center font-bold text-2xl shadow-lg border-2 border-blue-800">
+                        <i class="fas fa-cube"></i>
                     </div>
-                    <div class="p-4 mt-6 bg-white/60 dark:bg-slate-800/60 rounded-2xl">
-                        <h3 class="font-bold text-xl mb-2 text-primary"><i class="fas fa-sticky-note mr-2"></i>Catatan Belajar:</h3>
-                        <p class="leading-relaxed">Simak video di atas dengan cermat, lalu amati perbedaan gaya otot, gesek, dan gravitasi dalam kegiatan kita sehari-hari.</p>
-                    </div>
+                </div>
+                <button onclick="pushBlock()" class="mt-4 w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 shadow-md">Dorong Balok!</button>
+            </div>
+        </section>
+
+        <section id="view-materi-gravitasi" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-6 rounded-2xl text-center">
+                <h3 class="text-3xl font-bold text-blue-600 mb-4"><i class="fas fa-arrow-down mr-2"></i> Gaya Gravitasi</h3>
+                <p class="mb-6 text-gray-700 dark:text-gray-300">Gaya gravitasi menarik semua benda menuju pusat bumi. Walaupun massanya berbeda, benda akan jatuh.</p>
+                
+                <div class="flex justify-center gap-4 mb-4">
+                    <select id="grav-object" class="p-3 rounded-xl border border-gray-300 font-bold text-lg">
+                        <option value="apel">🍎 Apel</option>
+                        <option value="bola">⚽ Bola</option>
+                        <option value="batu">🪨 Batu</option>
+                    </select>
+                    <button onclick="dropObject()" class="px-6 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 shadow-md">Jatuhkan!</button>
+                </div>
+                
+                <div class="w-full max-w-sm mx-auto h-80 bg-sky-200 dark:bg-sky-900 rounded-xl relative overflow-hidden border-4 border-gray-300 shadow-inner">
+                    <div class="absolute bottom-0 w-full h-12 bg-green-500 rounded-t-[50%]"></div> <!-- Earth surface -->
+                    <div id="grav-item" class="absolute top-4 left-1/2 transform -translate-x-1/2 text-5xl">🍎</div>
                 </div>
             </div>
         </section>
 
-        <section id="page-game" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-4xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4">Game Pasang Gaya</h2>
+        <section id="view-simulasi" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-5xl glass-panel p-6 rounded-2xl flex flex-col items-center">
+                <h3 class="text-2xl font-bold mb-4 w-full text-center">Laboratorium Simulasi 2D</h3>
+                <div class="flex gap-2 mb-4 w-full overflow-x-auto pb-2">
+                    <button onclick="setSimMode('dorong')" class="flex-1 py-2 bg-blue-100 text-blue-800 font-bold rounded shadow hover:bg-blue-200">Dorong Meja</button>
+                    <button onclick="setSimMode('gesek')" class="flex-1 py-2 bg-green-100 text-green-800 font-bold rounded shadow hover:bg-green-200">Gaya Gesek</button>
+                    <button onclick="setSimMode('jatuh')" class="flex-1 py-2 bg-purple-100 text-purple-800 font-bold rounded shadow hover:bg-purple-200">Jatuh Bebas</button>
                 </div>
+                <canvas id="sim-canvas"></canvas>
+                <div id="sim-controls" class="w-full mt-4 flex items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+                    <span class="font-bold text-gray-700 dark:text-gray-200 w-24">Kekuatan:</span>
+                    <input type="range" id="sim-slider" min="0" max="100" value="0" class="flex-1">
+                    <button onclick="triggerSim()" class="px-6 py-2 bg-primary text-white font-bold rounded hover:bg-blue-700">Mulai</button>
+                </div>
+            </div>
+        </section>
 
-                <div class="glass-panel p-8 rounded-3xl shadow-xl text-center">
-                    <p class="text-lg mb-6 font-medium">Tarik kartu aktivitas (di bawah) dan letakkan pada wadah jenis gaya yang sesuai (di atas):</p>
+        <!-- Menu Projek & Video Projek -->
+        <section id="view-projek" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-5xl glass-panel p-6 md:p-8 rounded-2xl">
+                <h3 class="text-3xl font-bold mb-8 text-center text-primary"><i class="fas fa-cogs mr-2"></i> Projek Alat Peraga</h3>
+                
+                <!-- Alat & Bahan -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Bahan -->
+                    <div class="bg-white/50 dark:bg-gray-800/50 p-6 rounded-xl border border-white/40 shadow-sm">
+                        <h4 class="text-xl font-bold text-blue-600 mb-4 border-b-2 border-blue-200 pb-2"><i class="fas fa-cubes mr-2"></i> Bahan</h4>
+                        <ul class="space-y-2 text-gray-700 dark:text-gray-300 font-medium">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 1. 4 Tutup Botol</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 2. Lidi 2 Buah</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 3. Botol Kotak 1</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 4. Balon 2 Buah</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 5. Sedotan</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 6. Kertas Origami</li>
+                        </ul>
+                    </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                        <div class="dropzone h-36 border-4 border-dashed border-blue-400 rounded-2xl flex items-center justify-center font-bold text-xl bg-blue-50/70 text-blue-900 transition-all" data-target="otot">Gaya Otot</div>
-                        <div class="dropzone h-36 border-4 border-dashed border-green-400 rounded-2xl flex items-center justify-center font-bold text-xl bg-green-50/70 text-green-900 transition-all" data-target="gesek">Gaya Gesek</div>
-                        <div class="dropzone h-36 border-4 border-dashed border-purple-400 rounded-2xl flex items-center justify-center font-bold text-xl bg-purple-50/70 text-purple-900 transition-all" data-target="gravitasi">Gaya Gravitasi</div>
+                    <!-- Alat -->
+                    <div class="bg-white/50 dark:bg-gray-800/50 p-6 rounded-xl border border-white/40 shadow-sm">
+                        <h4 class="text-xl font-bold text-orange-500 mb-4 border-b-2 border-orange-200 pb-2"><i class="fas fa-hammer mr-2"></i> Alat</h4>
+                        <ul class="space-y-2 text-gray-700 dark:text-gray-300 font-medium">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 1. Gunting</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 2. Lem Kertas</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i> 3. Lem Tembak</li>
+                        </ul>
                     </div>
+                </div>
 
-                    <div class="flex flex-wrap justify-center gap-4" id="draggable-container">
-                        <div draggable="true" class="drag-item bg-white dark:bg-slate-700 text-gray-800 dark:text-white p-3.5 rounded-xl shadow-md cursor-grab border-2 border-gray-200 dark:border-gray-600 font-bold" data-match="otot">Mendorong Meja</div>
-                        <div draggable="true" class="drag-item bg-white dark:bg-slate-700 text-gray-800 dark:text-white p-3.5 rounded-xl shadow-md cursor-grab border-2 border-gray-200 dark:border-gray-600 font-bold" data-match="gravitasi">Buah Apel Jatuh</div>
-                        <div draggable="true" class="drag-item bg-white dark:bg-slate-700 text-gray-800 dark:text-white p-3.5 rounded-xl shadow-md cursor-grab border-2 border-gray-200 dark:border-gray-600 font-bold" data-match="gesek">Mengerem Sepeda</div>
-                        <div draggable="true" class="drag-item bg-white dark:bg-slate-700 text-gray-800 dark:text-white p-3.5 rounded-xl shadow-md cursor-grab border-2 border-gray-200 dark:border-gray-600 font-bold" data-match="otot">Mengangkat Tas</div>
-                        <div draggable="true" class="drag-item bg-white dark:bg-slate-700 text-gray-800 dark:text-white p-3.5 rounded-xl shadow-md cursor-grab border-2 border-gray-200 dark:border-gray-600 font-bold" data-match="gesek">Sepatu di Lantai Kasar</div>
+                <!-- Video Tutorial -->
+                <h4 class="text-2xl font-bold mb-4 text-center"><i class="fab fa-youtube text-red-500 mr-2"></i> Langkah-langkah Mengerjakan Projek</h4>
+                <div class="aspect-video bg-black rounded-xl overflow-hidden relative shadow-lg flex items-center justify-center border-4 border-gray-800 w-full max-w-4xl mx-auto">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/MiS7fLMBWG8?si=eq9KMGQt59ZJdtfp" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-video" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-6 rounded-2xl">
+                <h3 class="text-2xl font-bold mb-4">Video Pembelajaran</h3>
+                <div class="aspect-video bg-black rounded-xl overflow-hidden relative shadow-lg flex items-center justify-center border-4 border-gray-800">
+                    <!-- Embed YouTube Video -->
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/epR7fu-wKRQ?si=3-Hk1XV6elYFeRiJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <div class="mt-4 bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-xl border border-yellow-200">
+                    <h4 class="font-bold"><i class="fas fa-edit"></i> Catatan Penting:</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Simak video ini dengan baik untuk lebih memahami bagaimana gaya otot, gaya gesek, dan gaya gravitasi bekerja di sekitar kita.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-ar" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-5xl glass-panel p-6 rounded-2xl flex flex-col items-center">
+                <h3 class="text-2xl font-bold mb-2">Augmented Reality (AR)</h3>
+                <p class="text-sm text-center mb-6 text-gray-600 dark:text-gray-300">Pilih materi AR di bawah ini untuk melihat simulasi menggunakan Assemblr Edu.</p>
+                
+                <div class="flex flex-wrap justify-center gap-4 mb-6">
+                    <button onclick="loadAssemblrAR('otot')" class="px-6 py-3 bg-blue-100 text-blue-700 border-2 border-blue-500 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition shadow-sm btn-hover">Gaya Otot</button>
+                    <button onclick="loadAssemblrAR('gesek')" class="px-6 py-3 bg-green-100 text-green-700 border-2 border-green-500 rounded-xl font-bold hover:bg-green-600 hover:text-white transition shadow-sm btn-hover">Gaya Gesek</button>
+                    <button onclick="loadAssemblrAR('gravitasi')" class="px-6 py-3 bg-purple-100 text-purple-700 border-2 border-purple-500 rounded-xl font-bold hover:bg-purple-600 hover:text-white transition shadow-sm btn-hover">Gaya Gravitasi</button>
+                </div>
+                
+                <!-- Iframe Assemblr Container -->
+                <div id="ar-iframe-container" class="w-full h-[400px] md:h-[600px] rounded-xl overflow-hidden shadow-2xl relative bg-gray-200 dark:bg-gray-800 flex items-center justify-center border-4 border-gray-300 dark:border-gray-700">
+                    <div class="text-center p-4">
+                        <i class="fas fa-cubes text-6xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-500 font-medium">Silakan pilih menu gaya di atas untuk memuat AR.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="page-kuis" class="page hidden min-h-screen p-6 pt-24 overflow-y-auto">
-            <div class="max-w-3xl mx-auto pb-12">
-                <div class="flex items-center mb-6">
-                    <button onclick="showPage('page-dashboard')" class="bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors ripple">
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <h2 class="text-3xl font-bold ml-4">Kuis Evaluasi</h2>
-                    <div class="ml-auto text-xl font-bold bg-white/80 dark:bg-slate-700 px-4 py-2 rounded-full shadow text-red-500">
-                        <i class="fas fa-stopwatch mr-2"></i><span id="quiz-timer">10:00</span>
-                    </div>
-                </div>
-
-                <div id="quiz-intro" class="glass-panel p-10 rounded-3xl shadow-xl text-center">
-                    <i class="fas fa-clipboard-check text-6xl text-primary mb-4"></i>
-                    <h3 class="text-2xl font-bold mb-3">Evaluasi Pemahaman Gaya & Gerak</h3>
-                    <p class="mb-6 text-gray-600 dark:text-gray-300">Terdapat 20 butir soal pilihan ganda acak. Dapatkan skor minimal 80 untuk mengunduh sertifikat digital.</p>
-                    <button onclick="startQuiz()" class="bg-green-600 text-white px-10 py-3.5 rounded-full font-bold text-xl shadow-lg hover:bg-green-700 hover:-translate-y-1 transition-all ripple">Mulai Kuis</button>
-                </div>
-
-                <div id="quiz-area" class="hidden glass-panel p-8 rounded-3xl shadow-xl relative">
-                    <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 mb-6">
-                        <div id="quiz-progress" class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                    <p id="quiz-question-number" class="text-sm font-bold text-blue-600 dark:text-blue-400 mb-2">Soal 1 dari 20</p>
-                    <h3 id="quiz-question-text" class="text-2xl font-bold mb-6 leading-snug">Pertanyaan soal kuis...</h3>
-                    <div id="quiz-options" class="flex flex-col gap-3"></div>
-                </div>
-
-                <div id="quiz-result" class="hidden glass-panel p-10 rounded-3xl shadow-xl text-center animate__animated animate__zoomIn">
-                    <i id="result-icon" class="fas fa-trophy text-6xl text-yellow-500 mb-4"></i>
-                    <h3 class="text-3xl font-bold mb-2">Skor Kamu: <span id="result-score" class="text-primary">0</span></h3>
-                    <p id="result-message" class="text-lg mb-6">Selamat!</p>
-                    <div id="certificate-btn" class="hidden mb-6">
-                        <button onclick="downloadCertificate()" class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-8 py-3.5 rounded-full font-bold shadow-md hover:-translate-y-1 transition-all">
-                            <i class="fas fa-certificate mr-2"></i>Unduh Sertifikat Digital
-                        </button>
-                    </div>
-                    <button onclick="resetQuiz(); showPage('page-dashboard')" class="bg-gray-600 text-white px-8 py-2.5 rounded-full font-bold shadow-md hover:bg-gray-700 transition-all">Kembali ke Dashboard</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="page-pengembang" class="page hidden min-h-screen p-6 flex items-center justify-center pt-24 overflow-y-auto">
-            <div class="max-w-md w-full relative pb-12">
-                <button onclick="showPage('page-dashboard')" class="absolute -top-4 -left-4 bg-white/80 dark:bg-slate-700 p-3 rounded-full shadow-md hover:bg-primary hover:text-white transition-colors z-10 ripple">
-                    <i class="fas fa-arrow-left"></i>
+        <section id="view-game-menu" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button onclick="initGameDragDrop()" class="glass-panel p-6 rounded-2xl flex flex-col items-center gap-4 btn-hover">
+                    <i class="fas fa-puzzle-piece text-5xl text-blue-500"></i>
+                    <h3 class="font-bold text-xl">Game 1: Drag Drop</h3>
+                    <p class="text-sm text-gray-500">Pasangkan gambar gaya</p>
                 </button>
-                <div class="glass-panel p-8 rounded-3xl shadow-xl text-center border-t-8 border-primary relative overflow-hidden">
-                    <div class="absolute -right-8 -top-8 opacity-10 text-9xl text-primary"><i class="fas fa-code"></i></div>
-                    <img src="https://user20302.na.imgto.link/public/20260803/file-000000002d788211accb017321225b51.avif" alt="Pengembang" class="w-32 h-32 mx-auto rounded-full border-4 border-white shadow-lg mb-4 object-cover object-top relative z-10">
-                    <h2 class="text-2xl font-bold text-primary mb-1 relative z-10">NIDA HERMINA</h2>
-                    <p class="text-gray-600 dark:text-gray-300 font-medium mb-4 relative z-10">Mahasiswa Magister Pendidikan Dasar</p>
-                    <div class="bg-white/60 dark:bg-slate-800/60 p-4 rounded-xl mb-4 relative z-10 text-left">
-                        <p class="flex items-center gap-2 mb-2"><i class="fas fa-university text-blue-500 w-5"></i> Universitas Bengkulu</p>
-                        <p class="flex items-center gap-2 mb-2"><i class="fas fa-box text-blue-500 w-5"></i> Produk: MPI GAYA BESUREK</p>
-                        <p class="flex items-center gap-2"><i class="fas fa-envelope text-blue-500 w-5"></i> nida.hermina@example.com</p>
-                    </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 relative z-10">Media Pembelajaran Interaktif ini dirancang untuk menunjang pembelajaran IPAS di tingkat Sekolah Dasar.</p>
+                <button onclick="initGameMaze()" class="glass-panel p-6 rounded-2xl flex flex-col items-center gap-4 btn-hover">
+                    <i class="fas fa-route text-5xl text-green-500"></i>
+                    <h3 class="font-bold text-xl">Game 2: Maze Gaya</h3>
+                    <p class="text-sm text-gray-500">Arahkan bola keluar rintangan</p>
+                </button>
+                <button onclick="initGameFind()" class="glass-panel p-6 rounded-2xl flex flex-col items-center gap-4 btn-hover">
+                    <i class="fas fa-search text-5xl text-orange-500"></i>
+                    <h3 class="font-bold text-xl">Game 3: Find Object</h3>
+                    <p class="text-sm text-gray-500">Cari benda di ruang lab</p>
+                </button>
+                <button onclick="initGameSteam()" class="glass-panel p-6 rounded-2xl flex flex-col items-center gap-4 btn-hover">
+                    <i class="fas fa-rocket text-5xl text-purple-500"></i>
+                    <h3 class="font-bold text-xl">Game 4: STEAM Challenge</h3>
+                    <p class="text-sm text-gray-500">Rakit parasut anti gravitasi</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- Game Active Container -->
+        <section id="view-game-active" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-6 rounded-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="game-title" class="text-2xl font-bold text-primary">Game Title</h3>
+                    <span id="game-score" class="font-bold text-xl bg-yellow-100 text-yellow-800 px-4 py-1 rounded-full shadow">Skor: 0</span>
+                </div>
+                
+                <div id="game-area" class="w-full min-h-[400px] bg-white dark:bg-gray-800 rounded-xl relative overflow-hidden border border-gray-200">
+                    <!-- Game content injected here -->
+                </div>
+                
+                <div class="mt-4 flex justify-end">
+                    <button onclick="navigate('game-menu')" class="px-6 py-2 bg-gray-500 text-white font-bold rounded shadow hover:bg-gray-600">Selesai Bermain</button>
                 </div>
             </div>
         </section>
 
+        <section id="view-kuis" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-3xl glass-panel p-8 rounded-2xl text-center relative overflow-hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="kuis-progress" class="font-bold text-gray-500">Soal 1/20</span>
+                    <span id="kuis-timer" class="font-bold text-red-500 bg-red-100 px-4 py-1 rounded-full"><i class="fas fa-clock mr-1"></i> 10:00</span>
+                </div>
+                
+                <div class="w-full h-2 bg-gray-200 rounded-full mb-8">
+                    <div id="kuis-bar" class="h-full bg-primary rounded-full transition-all w-0"></div>
+                </div>
+
+                <h3 id="kuis-question" class="text-xl md:text-2xl font-bold mb-8 text-gray-800 dark:text-white">Pertanyaan akan muncul di sini?</h3>
+                
+                <div id="kuis-options" class="grid grid-cols-1 gap-4 text-left">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <section id="view-pengembang" class="view-section flex-col items-center justify-center w-full min-h-screen p-4 hidden">
+            <div class="w-full max-w-2xl glass-panel p-10 rounded-3xl text-center relative mt-10">
+                <div class="absolute -top-16 left-1/2 transform -translate-x-1/2">
+                    <img src="https://user20302.na.imgto.link/public/20260803/file-000000002d788211accb017321225b51.avif" alt="Foto Pengembang" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover object-top">
+                </div>
+                <h3 class="mt-12 text-3xl font-extrabold text-primary mb-2">MPI GAYA BESUREK</h3>
+                <p class="text-sm text-gray-500 mb-8 font-bold tracking-widest uppercase">Media Pembelajaran Interaktif</p>
+                
+                <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <h4 class="text-gray-500 text-sm font-bold uppercase mb-1">Dikembangkan Oleh</h4>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white mb-2">NIDA HERMINA</p>
+                    <p class="text-gray-600 dark:text-gray-400">Mahasiswa Magister Pendidikan Dasar</p>
+                    <p class="font-bold text-primary mt-2">Universitas Bengkulu</p>
+                </div>
+                <p class="mt-8 text-xs text-gray-400">&copy; 2026 Hak Cipta Dilindungi.</p>
+            </div>
+        </section>
+
+        <section id="view-referensi" class="view-section flex-col items-center w-full p-4 py-8 hidden">
+            <div class="w-full max-w-4xl glass-panel p-8 rounded-2xl prose dark:prose-invert">
+                <h3 class="text-2xl font-bold border-b pb-2 mb-4">Daftar Pustaka</h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li>Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi. (2022). Buku Panduan Guru Ilmu Pengetahuan Alam dan Sosial untuk SD Kelas IV.</li>
+                    <li>Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi. (2022). Buku Siswa Ilmu Pengetahuan Alam dan Sosial untuk SD Kelas IV.</li>
+                    <li>Hewitt, Paul G. (2015). Conceptual Physics (12th Edition). Pearson.</li>
+                    <li>Aset Gambar dan Ikon: FontAwesome, Imgur.</li>
+                </ul>
+            </div>
+        </section>
+        
     </main>
 
     <script>
-        // 1. Audio Kontrol
+        // --- 1. STATE & UTILS ---
+        const APP_STATE = {
+            currentView: 'splash',
+            progress: localStorage.getItem('mpi_progress') || 0,
+            theme: localStorage.getItem('mpi_theme') || 'light',
+            audioMuted: false,
+            quizScore: 0,
+            quizTimer: null,
+            gamesScores: { g1:0, g2:0, g3:0, g4:0 }
+        };
+
+        // Audio Synth & Background Music Logic
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
         const bgMusic = document.getElementById('bg-music');
-        const volumeSlider = document.getElementById('volume-slider');
-        let audioPlayed = false;
+        const volSlider = document.getElementById('volume-slider');
+        let isMusicStarted = false;
+        
+        // Atur volume awal
+        bgMusic.volume = volSlider.value;
 
-        document.body.addEventListener('click', () => {
-            if (!audioPlayed) {
-                bgMusic.play().catch(e => console.log("Autoplay didukung setelah klik:", e));
-                audioPlayed = true;
-            }
-        }, { once: true });
-
-        volumeSlider.addEventListener('input', (e) => {
+        // Kontrol slider volume
+        volSlider.addEventListener('input', (e) => {
             bgMusic.volume = e.target.value;
-        });
-
-        // 2. Dark Mode Toggle
-        const themeBtn = document.getElementById('theme-toggle');
-        themeBtn.addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
-            if (document.documentElement.classList.contains('dark')) {
-                themeBtn.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
-            } else {
-                themeBtn.innerHTML = '<i class="fas fa-moon text-gray-800"></i>';
+            // Jika musik di unmute melalui slider
+            if (bgMusic.volume > 0 && APP_STATE.audioMuted) {
+                document.getElementById('btn-audio').click();
             }
         });
 
-        // 3. Navigasi Halaman
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => {
-                p.classList.add('hidden');
-                p.classList.remove('animate__animated', 'animate__fadeIn');
-            });
-            const target = document.getElementById(pageId);
-            target.classList.remove('hidden');
-            target.classList.add('animate__animated', 'animate__fadeIn');
+        function playSound(type) {
+            if (APP_STATE.audioMuted || audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
             
-            localStorage.setItem('mpi_last_page', pageId);
-
-            if(pageId === 'page-simulasi') initCanvasSimulasi();
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
         }
 
-        // 4. Loading Splash Screen
+        // Add sound to all buttons and init BGM on first interaction
+        document.addEventListener('click', (e) => {
+            // Memulai musik latar pada klik pertama pengguna (kebijakan Autoplay Browser)
+            if (!isMusicStarted && !APP_STATE.audioMuted) {
+                bgMusic.play().catch(() => console.log("Autoplay dicegah oleh browser"));
+                isMusicStarted = true;
+            }
+            if (e.target.closest('button') || e.target.closest('.btn-hover')) playSound('click');
+        });
+
+        // Theme Toggle
+        const btnTheme = document.getElementById('btn-theme');
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            APP_STATE.theme = isDark ? 'dark' : 'light';
+            localStorage.setItem('mpi_theme', APP_STATE.theme);
+            btnTheme.innerHTML = isDark ? '<i class="fas fa-sun text-yellow-400"></i>' : '<i class="fas fa-moon text-primary"></i>';
+        }
+        if (APP_STATE.theme === 'dark') {
+            document.body.classList.add('dark');
+            btnTheme.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+        }
+        btnTheme.addEventListener('click', toggleTheme);
+
+        // Audio Toggle
+        const btnAudio = document.getElementById('btn-audio');
+        btnAudio.addEventListener('click', (e) => {
+            // Mencegah trigger dari document click agar tidak play ganda
+            e.stopPropagation(); 
+            
+            APP_STATE.audioMuted = !APP_STATE.audioMuted;
+            
+            if(!APP_STATE.audioMuted) {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                bgMusic.play().catch(() => {});
+            } else {
+                bgMusic.pause();
+            }
+            
+            btnAudio.innerHTML = APP_STATE.audioMuted ? '<i class="fas fa-volume-mute text-red-500"></i>' : '<i class="fas fa-volume-up text-primary"></i>';
+        });
+
+        // Navigation Engine
+        function navigate(viewId, updateProgress = true) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+                setTimeout(() => { if(!el.classList.contains('active')) el.style.display = 'none'; }, 500); // Wait for fade
+            });
+            
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) {
+                target.style.display = 'flex';
+                // Trigger reflow for animation
+                void target.offsetWidth; 
+                target.classList.add('active');
+                
+                // Header Logic
+                const header = document.getElementById('subpage-header');
+                const title = document.getElementById('subpage-title');
+                if (['splash', 'opening', 'dashboard'].includes(viewId)) {
+                    header.classList.add('hidden');
+                } else {
+                    header.classList.remove('hidden');
+                    title.innerText = viewId.replace('-', ' ').toUpperCase();
+                }
+
+                // Scroll top
+                window.scrollTo(0,0);
+
+                if (updateProgress && viewId !== 'splash' && viewId !== 'opening') updateLearningProgress();
+            }
+        }
+
+        function updateLearningProgress() {
+            let p = parseInt(APP_STATE.progress);
+            if (p < 100) p += 5;
+            if (p > 100) p = 100;
+            APP_STATE.progress = p;
+            localStorage.setItem('mpi_progress', p);
+            const dashProg = document.getElementById('dash-progress');
+            if(dashProg) dashProg.style.width = p + '%';
+        }
+
+        // SweetAlert Exit
+        function confirmExit() {
+            Swal.fire({
+                title: 'Keluar Aplikasi?',
+                text: "Progres belajar Anda sudah disimpan otomatis.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Keluar!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('opening');
+                }
+            });
+        }
+
+        function switchPanduan(type) {
+            const btnGuru = document.getElementById('btn-panduan-guru');
+            const btnSiswa = document.getElementById('btn-panduan-siswa');
+            const contentGuru = document.getElementById('content-panduan-guru');
+            const contentSiswa = document.getElementById('content-panduan-siswa');
+
+            if (type === 'guru') {
+                btnGuru.className = "px-6 py-3 font-bold text-primary border-b-2 border-primary w-1/2 transition-colors";
+                btnSiswa.className = "px-6 py-3 font-bold text-gray-500 border-b-2 border-transparent w-1/2 transition-colors";
+                contentGuru.classList.remove('hidden');
+                contentSiswa.classList.add('hidden');
+            } else {
+                btnSiswa.className = "px-6 py-3 font-bold text-primary border-b-2 border-primary w-1/2 transition-colors";
+                btnGuru.className = "px-6 py-3 font-bold text-gray-500 border-b-2 border-transparent w-1/2 transition-colors";
+                contentSiswa.classList.remove('hidden');
+                contentGuru.classList.add('hidden');
+            }
+            playSound('click');
+        }
+
+        // --- STREAMING_CHUNK:Initialization & Splash Logic ---
         window.addEventListener('load', () => {
+            // Splash Screen Animation
             let progress = 0;
-            const bar = document.getElementById('loading-bar');
-            const txt = document.getElementById('loading-text');
+            const splashBar = document.getElementById('splash-progress');
+            const splashText = document.getElementById('splash-text');
             
             const interval = setInterval(() => {
-                progress += Math.floor(Math.random() * 15) + 6;
-                if(progress > 100) progress = 100;
-                bar.style.width = progress + '%';
-                txt.innerText = progress + '%';
-                
-                if(progress === 100) {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress >= 100) {
+                    progress = 100;
                     clearInterval(interval);
                     setTimeout(() => {
-                        showPage('page-opening');
-                    }, 400);
+                        navigate('opening', false);
+                        playSound('success');
+                    }, 800);
                 }
-            }, 150);
+                splashBar.style.width = `${progress}%`;
+                splashText.innerText = `Memuat Aset... ${progress}%`;
+            }, 200);
+
+            // Set initial progress
+            const dashProg = document.getElementById('dash-progress');
+            if(dashProg) dashProg.style.width = APP_STATE.progress + '%';
         });
 
-        // 5. Modul Materi
-        function switchMateri(jenis) {
-            document.querySelectorAll('.materi-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('materi-' + jenis).classList.remove('hidden');
-            
-            document.querySelectorAll('.materi-tab').forEach(btn => {
-                btn.classList.remove('bg-primary', 'text-white');
-                btn.classList.add('bg-white', 'dark:bg-slate-700', 'text-gray-700', 'dark:text-white');
+        // --- STREAMING_CHUNK:Materi Interaktif Logic ---
+        // Otot
+        const sliderOtot = document.getElementById('slider-otot');
+        const ototBox = document.getElementById('otot-box');
+        const ototPerson = document.getElementById('otot-person');
+        if(sliderOtot) {
+            sliderOtot.addEventListener('input', (e) => {
+                const val = e.target.value;
+                const distance = (val / 100) * (ototBox.parentElement.offsetWidth - 64); // 64 is box width
+                ototBox.style.transform = `translateX(${distance}px)`;
+                ototPerson.style.transform = `translateX(${distance}px) scaleX(-1)`;
+                if(val > 0 && audioCtx.state !== 'suspended') {
+                   // subtle scraping sound simulation
+                }
             });
+        }
+
+        // Gesek
+        let currentFriction = 0.1; 
+        const gesekSurface = document.getElementById('gesek-surface');
+        const gesekBlock = document.getElementById('gesek-block');
+        function setSurface(type) {
+            // reset position
+            gsap.killTweensOf(gesekBlock);
+            gesekBlock.style.transform = 'translateX(0px)';
             
-            const activeBtn = document.getElementById('btn-materi-' + jenis);
-            activeBtn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-gray-700', 'dark:text-white');
-            activeBtn.classList.add('bg-primary', 'text-white');
+            if(type === 'es') { currentFriction = 0.05; gesekSurface.className = 'w-full h-32 bg-cyan-100 border-b-8 border-cyan-400 relative overflow-hidden rounded-t-xl transition-colors duration-500'; }
+            else if(type === 'kayu') { currentFriction = 0.3; gesekSurface.className = 'w-full h-32 bg-amber-100 border-b-8 border-amber-600 relative overflow-hidden rounded-t-xl transition-colors duration-500'; }
+            else if(type === 'aspal') { currentFriction = 0.8; gesekSurface.className = 'w-full h-32 bg-gray-300 border-b-8 border-gray-800 relative overflow-hidden rounded-t-xl transition-colors duration-500'; }
+            else if(type === 'rumput') { currentFriction = 0.6; gesekSurface.className = 'w-full h-32 bg-green-200 border-b-8 border-green-700 relative overflow-hidden rounded-t-xl transition-colors duration-500'; }
+        }
+        function pushBlock() {
+            gesekBlock.style.transform = 'translateX(0px)'; // reset
+            const distance = 300 - (currentFriction * 300); // less friction = further
+            const duration = 2 + (currentFriction * 2);
+            gsap.to(gesekBlock, {
+                x: distance,
+                duration: duration,
+                ease: "power2.out",
+                onComplete: () => playSound('click')
+            });
         }
 
-        let durasiGesek = 'duration-[2000ms]';
-        function setGesekan(jenis) {
-            const arena = document.getElementById('arena-gesek');
-            arena.classList.remove('bg-blue-100', 'bg-amber-200', 'bg-gray-400');
+        // Gravitasi
+        function dropObject() {
+            const objSelect = document.getElementById('grav-object').value;
+            const item = document.getElementById('grav-item');
+            if(objSelect === 'apel') item.innerText = '🍎';
+            else if(objSelect === 'bola') item.innerText = '⚽';
+            else if(objSelect === 'batu') item.innerText = '🪨';
             
-            if(jenis === 'es') { arena.classList.add('bg-blue-100'); durasiGesek = 'duration-[500ms]'; }
-            if(jenis === 'kayu') { arena.classList.add('bg-amber-200'); durasiGesek = 'duration-[2000ms]'; }
-            if(jenis === 'aspal') { arena.classList.add('bg-gray-400'); durasiGesek = 'duration-[4000ms]'; }
-        }
-
-        function luncurkanBalok() {
-            const balok = document.getElementById('balok-gesek');
-            balok.className = `w-12 h-12 bg-red-500 rounded absolute bottom-0 transition-all ease-out flex items-center justify-center text-white ${durasiGesek}`;
-            balok.style.left = '0%';
-            setTimeout(() => {
-                balok.style.left = '82%';
-            }, 50);
-            setTimeout(() => {
-                balok.style.left = '0%';
-            }, 4500);
-        }
-
-        function jatuhkanBenda(jenis) {
-            const wadah = document.getElementById('benda-jatuh');
-            wadah.style.transition = 'none';
-            wadah.style.top = '24px';
-            wadah.style.opacity = '1';
+            // reset
+            gsap.killTweensOf(item);
+            item.style.top = '10px';
             
-            if(jenis === 'apel') wadah.innerText = '🍎';
-            if(jenis === 'bola') wadah.innerText = '🏀';
-            if(jenis === 'batu') wadah.innerText = '🪨';
-
-            setTimeout(() => {
-                wadah.style.transition = 'top 1s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.8s';
-                wadah.style.top = '300px';
-                setTimeout(() => { wadah.style.opacity = '0'; }, 800);
-            }, 50);
+            // animate fall - ignoring air res for simplicity in primary math, just visual
+            gsap.to(item, {
+                top: '250px', // earth level
+                duration: 1.5,
+                ease: "power2.in",
+                onComplete: () => {
+                    playSound('click');
+                    // slight bounce
+                    gsap.to(item, {top: '230px', duration: 0.2, yoyo: true, repeat: 1, ease:"power1.out"});
+                }
+            });
         }
 
-        // 6. Simulasi HTML5 Canvas 2D
-        let simCanvas, ctx, simBox;
-        let simForce = 0;
-        let simFriction = 0.05;
+        // --- STREAMING_CHUNK:Canvas Simulations ---
+        let simMode = 'dorong';
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        let simObj = { x: 50, y: 150, vx: 0, mass: 10 };
         let simAnimationId;
 
-        function initCanvasSimulasi() {
-            simCanvas = document.getElementById('simulasiCanvas');
-            if(!simCanvas) return;
-            ctx = simCanvas.getContext('2d');
-            
-            simBox = { x: 50, y: 250, width: 80, height: 80, vx: 0, mass: 10 };
-            
-            document.getElementById('sim-dorong').addEventListener('input', (e) => {
-                simForce = parseFloat(e.target.value);
-            });
-            document.getElementById('sim-permukaan').addEventListener('change', (e) => {
-                simFriction = parseFloat(e.target.value);
-            });
+        function resizeCanvas() {
+            if(canvas) {
+                canvas.width = canvas.parentElement.clientWidth - 48; // padding adj
+                canvas.height = 300;
+                drawSim();
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
 
-            if(!simAnimationId) simLoop();
+        function setSimMode(mode) {
+            simMode = mode;
+            simObj = { x: 50, y: 150, vx: 0, mass: 10 };
+            document.getElementById('sim-slider').value = 0;
+            cancelAnimationFrame(simAnimationId);
+            resizeCanvas();
         }
 
-        function resetSimulasi() {
-            if(simBox) {
-                simBox.x = 50;
-                simBox.vx = 0;
-                document.getElementById('sim-dorong').value = 0;
-                simForce = 0;
+        function drawSim() {
+            if(!ctx) return;
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            
+            // Ground
+            ctx.fillStyle = document.body.classList.contains('dark') ? '#4b5563' : '#cbd5e1';
+            ctx.fillRect(0, 200, canvas.width, 100);
+
+            if(simMode === 'dorong' || simMode === 'gesek') {
+                // Object
+                ctx.fillStyle = '#2563EB';
+                ctx.fillRect(simObj.x, 200 - 50, 50, 50);
+                
+                // Force Arrow
+                const force = parseInt(document.getElementById('sim-slider').value);
+                if(force > 0 && simObj.vx === 0) {
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath();
+                    ctx.moveTo(simObj.x - 10, 175);
+                    ctx.lineTo(simObj.x - force, 175);
+                    ctx.lineWidth = 5;
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.stroke();
+                    // arrowhead
+                    ctx.moveTo(simObj.x - 10, 175);
+                    ctx.lineTo(simObj.x - 20, 165);
+                    ctx.lineTo(simObj.x - 20, 185);
+                    ctx.fill();
+                }
+            } else if (simMode === 'jatuh') {
+                 // Object
+                 ctx.beginPath();
+                 ctx.arc(canvas.width/2, simObj.y, 20, 0, Math.PI*2);
+                 ctx.fillStyle = '#f59e0b';
+                 ctx.fill();
             }
         }
 
         function simLoop() {
-            ctx.clearRect(0, 0, simCanvas.width, simCanvas.height);
-            
-            // Langit / Background Simulasi
-            ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#1e293b' : '#e0f2fe';
-            ctx.fillRect(0, 0, simCanvas.width, simCanvas.height);
-            
-            // Lantai
-            ctx.fillStyle = '#64748b';
-            ctx.fillRect(0, 330, simCanvas.width, 70);
-
-            // Perhitungan percepatan & gaya
-            let acceleration = simForce / simBox.mass;
-            simBox.vx += acceleration;
-            
-            if (simBox.vx > 0) {
-                simBox.vx -= simFriction;
-                if(simBox.vx < 0) simBox.vx = 0;
-            }
-
-            simBox.x += simBox.vx;
-            
-            if(simBox.x > simCanvas.width - simBox.width) {
-                simBox.x = simCanvas.width - simBox.width;
-                simBox.vx = 0;
-            }
-
-            // Gambar Balok
-            ctx.fillStyle = '#ea580c';
-            ctx.fillRect(simBox.x, simBox.y, simBox.width, simBox.height);
-            ctx.fillStyle = '#fff';
-            ctx.font = '22px "Font Awesome 6 Free"';
-            ctx.fontWeight = '900';
-            ctx.fillText('\uf466', simBox.x + 28, simBox.y + 48);
-
-            simAnimationId = requestAnimationFrame(simLoop);
-        }
-
-        // 7. AR Assemblr Edu
-        function showAR(type) {
-            const iframe = document.getElementById('ar-iframe');
-            const container = document.getElementById('ar-container');
-            const placeholder = document.getElementById('ar-placeholder');
-            
-            placeholder.classList.add('hidden');
-            container.classList.remove('hidden');
-
-            let url = "";
-            if (type === 'otot') url = "https://viewer-edu.assemblrworld.com/Embed/-fJmrSmaypJPqZkelE7Y";
-            if (type === 'gesek') url = "https://viewer-edu.assemblrworld.com/Embed/-eXkmoo4Xhf7Qv6mKAUY";
-            if (type === 'gravitasi') url = "https://viewer-edu.assemblrworld.com/Embed/-qxf9PV5ni6CKeqZWAdu";
-            
-            iframe.src = url;
-        }
-
-        // 8. Game Drag and Drop
-        const dragItems = document.querySelectorAll('.drag-item');
-        const dropzones = document.querySelectorAll('.dropzone');
-        let draggedItem = null;
-
-        dragItems.forEach(item => {
-            item.addEventListener('dragstart', function() {
-                draggedItem = this;
-                setTimeout(() => this.style.opacity = '0.5', 0);
-            });
-            item.addEventListener('dragend', function() {
-                setTimeout(() => this.style.opacity = '1', 0);
-                draggedItem = null;
-            });
-        });
-
-        dropzones.forEach(zone => {
-            zone.addEventListener('dragover', e => e.preventDefault());
-            zone.addEventListener('dragenter', function(e) {
-                e.preventDefault();
-                this.classList.add('scale-105', 'shadow-lg');
-            });
-            zone.addEventListener('dragleave', function() {
-                this.classList.remove('scale-105', 'shadow-lg');
-            });
-            zone.addEventListener('drop', function() {
-                this.classList.remove('scale-105', 'shadow-lg');
-                if (draggedItem) {
-                    const targetType = this.getAttribute('data-target');
-                    const itemType = draggedItem.getAttribute('data-match');
-                    
-                    if (targetType === itemType) {
-                        this.appendChild(draggedItem);
-                        draggedItem.classList.remove('cursor-grab');
-                        draggedItem.setAttribute('draggable', 'false');
-                        Swal.fire({ title: 'Tepat!', text: 'Jawabanmu benar.', icon: 'success', timer: 1400, showConfirmButton: false });
-                    } else {
-                        Swal.fire({ title: 'Kurang Tepat', text: 'Coba letakkan pada kategori gaya yang lain!', icon: 'error' });
-                    }
-                }
-            });
-        });
-
-        // 9. Kuis 20 Soal Acak
-        const bankSoal = [
-            { q: "Gaya yang dihasilkan dari tarikan bumi disebut...", a: ["Gaya Gravitasi", "Gaya Otot", "Gaya Gesek", "Gaya Magnet"], c: 0 },
-            { q: "Mendorong meja belajar menggunakan kekuatan...", a: ["Gaya Gesek", "Gaya Otot", "Gaya Gravitasi", "Gaya Pegas"], c: 1 },
-            { q: "Alur pada ban kendaraan dibuat kasar dengan tujuan...", a: ["Memperindah tampilan", "Memperbesar gaya gesek", "Mengurangi bobot roda", "Menghilangkan gaya gravitasi"], c: 1 },
-            { q: "Buah kelapa yang jatuh langsung ke tanah dipengaruhi oleh...", a: ["Gaya Otot", "Gaya Gesek", "Gaya Gravitasi", "Gaya Listrik"], c: 2 },
-            { q: "Lantai yang licin akibat tumpahan minyak membuat gaya gesek...", a: ["Makin besar", "Makin kecil", "Hilang total", "Tidak berubah"], c: 1 },
-            { q: "Aktivitas meremas plastisin menjadi bentuk hewan menggunakan...", a: ["Gaya Gesek", "Gaya Gravitasi", "Gaya Otot", "Gaya Pegas"], c: 2 },
-            { q: "Sepatu roda dapat meluncur kencang di permukaan halus karena gaya geseknya...", a: ["Sangat besar", "Kecil", "Berlipat ganda", "Menghambat total"], c: 1 },
-            { q: "Benda yang dilempar tinggi ke udara selalu jatuh kembali karena...", a: ["Hembusan angin", "Gaya Otot", "Gaya Tarik Gravitasi Bumi", "Daya dorong awan"], c: 2 },
-            { q: "Pengaruh gaya terhadap plastisin atau tanah liat adalah...", a: ["Mengubah suhu benda", "Mengubah bentuk benda", "Menambah massa benda", "Mengubah warna benda"], c: 1 },
-            { q: "Gaya yang bekerja pada kampas rem sepeda saat ditarik adalah...", a: ["Gaya Otot", "Gaya Gesek", "Gaya Gravitasi", "Gaya Magnet"], c: 1 },
-            { q: "Dorongan atau tarikan yang bersumber dari otot tubuh dinamakan...", a: ["Gaya Otot", "Gaya Gravitasi", "Gaya Gesek", "Gaya Listrik"], c: 0 },
-            { q: "Manakah yang merupakan pemanfaatan gaya otot dalam kehidupan?", a: ["Mengangkat ember air", "Batu jatuh bebas", "Kompas menunjuk utara", "Air mengalir ke bawah"], c: 0 },
-            { q: "Mengapa kita mudah terpeleset di lantai yang basah?", a: ["Gravitasi berkurang drastis", "Gaya gesek telapak kaki mengecil", "Gaya gesek bertambah besar", "Gaya otot hilang"], c: 1 },
-            { q: "Permukaan yang bertekstur kasar akan memicu gaya gesek yang...", a: ["Makin kecil", "Makin besar", "Nol", "Sama persis"], c: 1 },
-            { q: "Benda apa pun yang dilepaskan di bumi akan terarah ke...", a: ["Atas langit", "Samping kanan", "Pusat bumi (bawah)", "Mengapung di tempat"], c: 2 },
-            { q: "Astronot di luar angkasa dapat melayang-layang karena...", a: ["Hampir tidak ada gaya gravitasi bumi", "Gaya gesek terlampau kuat", "Ruang hampa udara panas", "Gaya dorong berlebih"], c: 0 },
-            { q: "Gaya yang menghambat laju sepeda di jalanan berbatu adalah...", a: ["Gaya Magnet", "Gaya Gesek", "Gaya Gravitasi", "Gaya Pegas"], c: 1 },
-            { q: "Permainan tarik tambang membutuhkan pengerahan...", a: ["Gaya Gravitasi", "Gaya Otot", "Gaya Listrik", "Gaya Apung"], c: 1 },
-            { q: "Pemberian oli pada rantai sepeda bertujuan untuk...", a: ["Memperbesar gesekan", "Memperkecil hambatan gaya gesek", "Menaikkan bobot sepeda", "Menambah gaya gravitasi"], c: 1 },
-            { q: "Parasut penerjun payung memanfaatkan gesekan dengan ... agar turun perlahan.", a: ["Udara", "Air", "Batu", "Tanah"], c: 0 }
-        ];
-
-        let currentQuestion = 0;
-        let score = 0;
-        let quizTimerInterval;
-        let timeLeft = 600;
-
-        function startQuiz() {
-            document.getElementById('quiz-intro').classList.add('hidden');
-            document.getElementById('quiz-area').classList.remove('hidden');
-            currentQuestion = 0;
-            score = 0;
-            timeLeft = 600;
-            
-            bankSoal.sort(() => Math.random() - 0.5);
-            startTimer();
-            loadQuestion();
-        }
-
-        function startTimer() {
-            clearInterval(quizTimerInterval);
-            const timeDisplay = document.getElementById('quiz-timer');
-            quizTimerInterval = setInterval(() => {
-                timeLeft--;
-                let m = Math.floor(timeLeft / 60);
-                let s = timeLeft % 60;
-                timeDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-                if (timeLeft <= 0) {
-                    clearInterval(quizTimerInterval);
-                    finishQuiz();
-                }
-            }, 1000);
-        }
-
-        function loadQuestion() {
-            if(currentQuestion >= bankSoal.length) {
-                finishQuiz();
-                return;
-            }
-
-            const q = bankSoal[currentQuestion];
-            document.getElementById('quiz-question-number').innerText = `Soal ${currentQuestion + 1} dari ${bankSoal.length}`;
-            document.getElementById('quiz-progress').style.width = `${(currentQuestion / bankSoal.length) * 100}%`;
-            document.getElementById('quiz-question-text').innerText = q.q;
-            
-            const optionsBox = document.getElementById('quiz-options');
-            optionsBox.innerHTML = '';
-            
-            q.a.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full text-left p-4 bg-white/80 dark:bg-slate-700/80 border-2 border-gray-200 dark:border-gray-600 rounded-2xl hover:bg-blue-50 dark:hover:bg-slate-600 hover:border-blue-400 font-semibold transition-all shadow-sm';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(idx, q.c);
-                optionsBox.appendChild(btn);
-            });
-        }
-
-        function checkAnswer(selectedIdx, correctIdx) {
-            if(selectedIdx === correctIdx) score += (100 / bankSoal.length);
-            currentQuestion++;
-            loadQuestion();
-        }
-
-        function finishQuiz() {
-            clearInterval(quizTimerInterval);
-            document.getElementById('quiz-area').classList.add('hidden');
-            const resultBox = document.getElementById('quiz-result');
-            resultBox.classList.remove('hidden');
-            
-            let finalScore = Math.round(score);
-            document.getElementById('result-score').innerText = finalScore;
-            
-            const msg = document.getElementById('result-message');
-            const icon = document.getElementById('result-icon');
-            const certBtn = document.getElementById('certificate-btn');
-            
-            if(finalScore >= 80) {
-                msg.innerText = "Luar biasa! Pemahaman konsepmu tentang gaya dan gerak sudah sangat baik.";
-                icon.className = "fas fa-trophy text-6xl text-yellow-500 mb-4 animate__animated animate__tada";
-                certBtn.classList.remove('hidden');
+            if(simMode === 'dorong' || simMode === 'gesek') {
+                simObj.x += simObj.vx;
+                const friction = simMode === 'gesek' ? 0.95 : 0.98; // more friction in gesek mode
+                simObj.vx *= friction;
+                if(Math.abs(simObj.vx) < 0.1) simObj.vx = 0;
                 
-                document.getElementById('user-progress').innerText = 'Progress: 100% (Lulus)';
-                localStorage.setItem('mpi_progress', '100');
+                if(simObj.x > canvas.width - 50) { simObj.x = canvas.width - 50; simObj.vx *= -0.5; }
+                if(simObj.vx > 0) simAnimationId = requestAnimationFrame(simLoop);
+            } else if (simMode === 'jatuh') {
+                simObj.vy = (simObj.vy || 0) + 0.5; // gravity
+                simObj.y += simObj.vy;
+                if(simObj.y > 180) { // hit ground
+                    simObj.y = 180;
+                    simObj.vy *= -0.6; // bounce
+                    if(Math.abs(simObj.vy) < 1) simObj.vy = 0;
+                }
+                if(simObj.vy !== 0) simAnimationId = requestAnimationFrame(simLoop);
+            }
+            drawSim();
+        }
+
+        function triggerSim() {
+            const force = parseInt(document.getElementById('sim-slider').value);
+            cancelAnimationFrame(simAnimationId);
+            
+            if(simMode === 'dorong' || simMode === 'gesek') {
+                simObj.vx = force / 5;
+            } else if (simMode === 'jatuh') {
+                simObj.y = 20;
+                simObj.vy = 0;
+            }
+            simLoop();
+            playSound('click');
+        }
+
+        // Call resize initially to setup canvas
+        setTimeout(resizeCanvas, 1000);
+
+        // --- STREAMING_CHUNK:AR Assemblr Logic ---
+        function loadAssemblrAR(type) {
+            const container = document.getElementById('ar-iframe-container');
+            let iframeSrc = '';
+            
+            if (type === 'otot') {
+                iframeSrc = 'https://viewer-edu.assemblrworld.com/Embed/-fJmrSmaypJPqZkelE7Y';
+            } else if (type === 'gesek') {
+                iframeSrc = 'https://viewer-edu.assemblrworld.com/Embed/-eXkmoo4Xhf7Qv6mKAUY';
+            } else if (type === 'gravitasi') {
+                iframeSrc = 'https://viewer-edu.assemblrworld.com/Embed/-qxf9PV5ni6CKeqZWAdu';
+            }
+            
+            if (iframeSrc) {
+                container.innerHTML = `<iframe src="${iframeSrc}" allow="camera; microphone; gyroscope; accelerometer; magnetometer; xr-spatial-tracking; fullscreen" allowfullscreen="true" class="w-full h-full border-0"></iframe>`;
+            }
+            playSound('click');
+        }
+
+        // --- STREAMING_CHUNK:Games Logic ---
+        function loadGameArea(title, html) {
+            document.getElementById('game-title').innerText = title;
+            document.getElementById('game-area').innerHTML = html;
+            navigate('game-active');
+        }
+
+        function initGameDragDrop() {
+            const html = `
+                <div class="p-4 text-center">
+                    <p class="mb-4">Tarik kata ke kotak yang sesuai!</p>
+                    <div class="flex flex-wrap justify-center gap-4 mb-8">
+                        <div draggable="true" ondragstart="dragData(event, 'otot')" class="bg-blue-500 text-white p-3 rounded cursor-move shadow">Gaya Otot</div>
+                        <div draggable="true" ondragstart="dragData(event, 'gesek')" class="bg-green-500 text-white p-3 rounded cursor-move shadow">Gaya Gesek</div>
+                        <div draggable="true" ondragstart="dragData(event, 'gravitasi')" class="bg-purple-500 text-white p-3 rounded cursor-move shadow">Gravitasi</div>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <div ondrop="dropData(event, 'otot')" ondragover="allowDrop(event)" class="w-32 h-32 border-4 border-dashed border-gray-400 rounded-xl flex items-center justify-center text-gray-400 bg-gray-50 flex-col"><i class="fas fa-dumbbell text-2xl mb-2"></i> Area 1</div>
+                        <div ondrop="dropData(event, 'gesek')" ondragover="allowDrop(event)" class="w-32 h-32 border-4 border-dashed border-gray-400 rounded-xl flex items-center justify-center text-gray-400 bg-gray-50 flex-col"><i class="fas fa-road text-2xl mb-2"></i> Area 2</div>
+                        <div ondrop="dropData(event, 'gravitasi')" ondragover="allowDrop(event)" class="w-32 h-32 border-4 border-dashed border-gray-400 rounded-xl flex items-center justify-center text-gray-400 bg-gray-50 flex-col"><i class="fas fa-apple-alt text-2xl mb-2"></i> Area 3</div>
+                    </div>
+                </div>
+            `;
+            loadGameArea('Drag & Drop', html);
+        }
+        
+        window.dragData = function(ev, type) { ev.dataTransfer.setData("text", type); }
+        window.allowDrop = function(ev) { ev.preventDefault(); }
+        window.dropData = function(ev, targetType) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            if(data === targetType) {
+                ev.target.innerHTML = `<span class="text-green-500 font-bold text-xl">Benar! 🎉</span>`;
+                ev.target.classList.replace('border-gray-400', 'border-green-500');
+                playSound('success');
+                APP_STATE.gamesScores.g1 += 10;
+                document.getElementById('game-score').innerText = `Skor: ${APP_STATE.gamesScores.g1}`;
             } else {
-                msg.innerText = "Tetap semangat! Pelajari kembali materi modul lalu coba kerjakan kuis lagi.";
-                icon.className = "fas fa-award text-6xl text-orange-500 mb-4";
-                certBtn.classList.add('hidden');
+                playSound('click'); // error bump
+                ev.target.classList.add('animate-pulse', 'border-red-500');
+                setTimeout(()=> ev.target.classList.remove('animate-pulse', 'border-red-500'), 500);
             }
         }
 
-        function resetQuiz() {
-            document.getElementById('quiz-result').classList.add('hidden');
-            document.getElementById('quiz-intro').classList.remove('hidden');
-            clearInterval(quizTimerInterval);
-            document.getElementById('quiz-timer').innerText = "10:00";
+        function initGameMaze() {
+            // Simple HTML maze implementation
+            const html = `
+                <div class="p-4 text-center h-full flex flex-col items-center justify-center bg-gray-800 rounded-xl">
+                    <p class="text-white mb-4">Gunakan tombol untuk menggerakkan kotak biru ke hijau (Konsep Gaya Dorong).</p>
+                    <div id="maze-grid" class="relative w-64 h-64 bg-gray-900 border-4 border-gray-600">
+                        <div id="maze-player" class="absolute w-8 h-8 bg-blue-500 rounded left-0 top-0 transition-all duration-200"></div>
+                        <div class="absolute w-8 h-8 bg-green-500 rounded right-0 bottom-0"></div>
+                        <!-- Simple obstacles -->
+                        <div class="absolute w-32 h-8 bg-gray-600 top-16 left-0"></div>
+                        <div class="absolute w-8 h-32 bg-gray-600 top-16 right-16"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-4 max-w-[150px]">
+                        <div></div><button onclick="moveMaze(0, -1)" class="bg-gray-200 p-3 rounded font-bold"><i class="fas fa-arrow-up"></i></button><div></div>
+                        <button onclick="moveMaze(-1, 0)" class="bg-gray-200 p-3 rounded font-bold"><i class="fas fa-arrow-left"></i></button>
+                        <button onclick="moveMaze(0, 1)" class="bg-gray-200 p-3 rounded font-bold"><i class="fas fa-arrow-down"></i></button>
+                        <button onclick="moveMaze(1, 0)" class="bg-gray-200 p-3 rounded font-bold"><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            loadGameArea('Maze Gaya', html);
+            window.mazePos = {x:0, y:0};
+        }
+        
+        window.moveMaze = function(dx, dy) {
+            let nx = window.mazePos.x + dx * 32;
+            let ny = window.mazePos.y + dy * 32;
+            // Boundaries
+            if(nx < 0 || nx > 224 || ny < 0 || ny > 224) return;
+            // Obstacles collision (simplified)
+            if((ny === 64 && nx < 128) || (nx === 160 && ny >= 64 && ny < 192)) return;
+            
+            window.mazePos = {x:nx, y:ny};
+            document.getElementById('maze-player').style.transform = `translate(${nx}px, ${ny}px)`;
+            
+            if(nx === 224 && ny === 224) {
+                playSound('success');
+                APP_STATE.gamesScores.g2 += 20;
+                document.getElementById('game-score').innerText = `Skor: ${APP_STATE.gamesScores.g2}`;
+                Swal.fire('Hebat!', 'Anda berhasil menyelesaikan Maze!', 'success');
+                window.mazePos = {x:0,y:0}; // reset
+                document.getElementById('maze-player').style.transform = `translate(0px, 0px)`;
+            } else {
+                playSound('click');
+            }
         }
 
-        function downloadCertificate() {
+        function initGameFind() {
+            const html = `
+                <div class="relative w-full h-[400px] bg-gradient-to-b from-blue-100 to-green-100 overflow-hidden" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" height=\"100%\"><circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"none\" stroke=\"%23ccc\" stroke-width=\"2\"/></svg>');">
+                    <p class="absolute top-2 left-2 bg-white/80 p-2 rounded shadow text-sm font-bold z-10">Temukan: Magnet, Roda, Pegas</p>
+                    <div onclick="foundObject(this, 'Magnet')" class="absolute top-20 right-20 text-3xl cursor-pointer hover:scale-125 transition transform rotate-45 opacity-70">🧲</div>
+                    <div onclick="foundObject(this, 'Roda')" class="absolute bottom-10 left-1/4 text-4xl cursor-pointer hover:scale-125 transition opacity-60">🛞</div>
+                    <div onclick="foundObject(this, 'Pegas')" class="absolute top-1/2 left-1/2 text-2xl cursor-pointer hover:scale-125 transition opacity-50">〰️</div>
+                </div>
+            `;
+            loadGameArea('Find Object', html);
+        }
+        window.foundObject = function(el, name) {
+            el.style.display = 'none';
+            playSound('success');
+            APP_STATE.gamesScores.g3 += 10;
+            document.getElementById('game-score').innerText = `Skor: ${APP_STATE.gamesScores.g3}`;
+            Swal.fire('Ditemukan!', `Anda menemukan ${name}!`, 'success');
+        }
+
+        function initGameSteam() {
+            const html = `
+                <div class="p-8 text-center h-full flex flex-col justify-center bg-gray-50 dark:bg-gray-800">
+                    <h4 class="text-xl font-bold mb-4">Tantangan: Kurangi Gaya Gravitasi!</h4>
+                    <p class="mb-6">Kamu harus menjatuhkan telur dari lantai 2 tanpa pecah. Benda apa yang paling baik digunakan untuk membuat parasut (memperbesar gaya gesek udara)?</p>
+                    <div class="flex flex-col gap-3 max-w-md mx-auto">
+                        <button onclick="steamAns(false)" class="p-3 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-100 text-left font-bold">A. Kertas Karton Tebal</button>
+                        <button onclick="steamAns(true)" class="p-3 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-100 text-left font-bold">B. Kantong Plastik Lebar (Kresek)</button>
+                        <button onclick="steamAns(false)" class="p-3 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-100 text-left font-bold">C. Kain Wol Tebal</button>
+                    </div>
+                </div>
+            `;
+            loadGameArea('STEAM Challenge', html);
+        }
+        window.steamAns = function(isCorrect) {
+            if(isCorrect) {
+                playSound('success');
+                Swal.fire('Tepat Sekali!', 'Plastik lebar menangkap lebih banyak udara sehingga gaya gesek membesar dan jatuh lebih lambat.', 'success');
+                APP_STATE.gamesScores.g4 += 30;
+                document.getElementById('game-score').innerText = `Skor: ${APP_STATE.gamesScores.g4}`;
+            } else {
+                playSound('click');
+                Swal.fire('Kurang Tepat', 'Coba cari material yang ringan namun permukaannya luas untuk menangkap udara.', 'error');
+            }
+        }
+
+        // --- STREAMING_CHUNK:Kuis Logic ---
+        const soalKuis = [
+            {q: "Apa yang dimaksud dengan gaya?", a: "Tarikan atau dorongan", o: ["Tarikan atau dorongan", "Cahaya", "Suara", "Benda mati"]},
+            {q: "Gaya yang dikeluarkan oleh otot disebut?", a: "Gaya otot", o: ["Gaya gesek", "Gaya otot", "Gaya pegas", "Gaya mesin"]},
+            {q: "Alat pengukur gaya adalah?", a: "Dinamometer", o: ["Termometer", "Barometer", "Dinamometer", "Speedometer"]},
+            {q: "Gaya gesek terjadi apabila dua benda...", a: "Bersentuhan", o: ["Berjauhan", "Bersentuhan", "Melayang", "Tenggelam"]},
+            {q: "Permukaan yang licin akan membuat gaya gesek semakin...", a: "Kecil", o: ["Besar", "Kecil", "Sama", "Hilang"]},
+            {q: "Benda jatuh ke bumi karena adanya gaya...", a: "Gravitasi", o: ["Magnet", "Otot", "Gesek", "Gravitasi"]},
+            {q: "Sepatu bola diberi pul agar gaya gesek...", a: "Membesar", o: ["Mengecil", "Membesar", "Hilang", "Berubah"]},
+            {q: "Kegiatan mendorong meja menggunakan gaya...", a: "Otot", o: ["Otot", "Gravitasi", "Listrik", "Magnet"]},
+            {q: "Gaya gravitasi bumi menarik benda ke...", a: "Bawah (Pusat bumi)", o: ["Atas", "Samping", "Bawah (Pusat bumi)", "Luar angkasa"]},
+            {q: "Saat mengerem sepeda, gaya yang bekerja pada ban adalah gaya...", a: "Gesek", o: ["Otot", "Gesek", "Pegas", "Gravitasi"]},
+            {q: "Contoh pemanfaatan gaya gesek adalah...", a: "Alas sepatu yang bergerigi", o: ["Permukaan perosotan yang licin", "Alas sepatu yang bergerigi", "Bola yang bulat", "Pesawat terbang"]},
+            {q: "Makin kasar permukaan benda, maka gaya geseknya makin...", a: "Besar", o: ["Kecil", "Besar", "Nol", "Ringan"]},
+            {q: "Astronot di bulan bisa melompat tinggi karena...", a: "Gravitasi bulan lebih kecil", o: ["Gravitasi bulan lebih kecil", "Tidak ada gaya gesek", "Ototnya lebih kuat", "Menggunakan mesin"]},
+            {q: "Gaya dapat mengubah ... benda.", a: "Bentuk dan arah gerak", o: ["Warna", "Rasa", "Bentuk dan arah gerak", "Suhu"]},
+            {q: "Kuda menarik delman menggunakan gaya...", a: "Otot", o: ["Pegas", "Gesek", "Otot", "Gravitasi"]},
+            {q: "Buah kelapa yang jatuh dari pohon dipengaruhi oleh gaya...", a: "Gravitasi", o: ["Gesek", "Gravitasi", "Otot", "Magnet"]},
+            {q: "Benda yang permukaannya halus memiliki gaya gesek yang...", a: "Kecil", o: ["Besar", "Kecil", "Kasar", "Tinggi"]},
+            {q: "Untuk memperkecil gaya gesek, engsel pintu diberi...", a: "Pelumas/Oli", o: ["Air", "Pasir", "Pelumas/Oli", "Cat"]},
+            {q: "Gaya yang membuat kita bisa berjalan tanpa terpeleset adalah gaya...", a: "Gesek", o: ["Otot", "Gesek", "Gravitasi", "Pegas"]},
+            {q: "Ban mobil dibuat beralur tujuannya untuk...", a: "Memperbesar gaya gesek", o: ["Memperindah bentuk", "Memperbesar gaya gesek", "Meringankan mobil", "Mempercepat laju"]}
+        ];
+        
+        let kuisState = { current: 0, score: 0, questions: [], timeLeft: 600 };
+
+        function startKuis() {
             Swal.fire({
-                title: 'Menyiapkan Sertifikat Digital...',
-                html: 'Sertifikat apresiasi atas nama <b>Siswa Hebat</b> siap disimpan.',
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false
+                title: 'Siap Memulai Kuis?',
+                text: "Terdapat 20 soal dengan waktu 10 menit. Nilai minimal 80 untuk mendapat sertifikat.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Mulai!',
+                cancelButtonText: 'Nanti saja'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Shuffle & select 20
+                    kuisState.questions = soalKuis.sort(() => 0.5 - Math.random()).slice(0, 20);
+                    kuisState.current = 0;
+                    kuisState.score = 0;
+                    kuisState.timeLeft = 600;
+                    navigate('kuis');
+                    renderKuis();
+                    
+                    clearInterval(APP_STATE.quizTimer);
+                    APP_STATE.quizTimer = setInterval(() => {
+                        kuisState.timeLeft--;
+                        let m = Math.floor(kuisState.timeLeft / 60);
+                        let s = kuisState.timeLeft % 60;
+                        document.getElementById('kuis-timer').innerHTML = `<i class="fas fa-clock mr-1"></i> ${m}:${s < 10 ? '0':''}${s}`;
+                        
+                        if(kuisState.timeLeft <= 0) {
+                            clearInterval(APP_STATE.quizTimer);
+                            endKuis();
+                        }
+                    }, 1000);
+                }
+            });
+        }
+
+        function renderKuis() {
+            const qData = kuisState.questions[kuisState.current];
+            document.getElementById('kuis-progress').innerText = `Soal ${kuisState.current + 1} / 20`;
+            document.getElementById('kuis-bar').style.width = `${((kuisState.current)/20)*100}%`;
+            document.getElementById('kuis-question').innerText = qData.q;
+            
+            const optionsDiv = document.getElementById('kuis-options');
+            optionsDiv.innerHTML = '';
+            
+            // shuffle options
+            let opts = [...qData.o].sort(() => 0.5 - Math.random());
+            
+            opts.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full p-4 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-blue-50 hover:border-primary dark:hover:bg-gray-600 text-left font-bold transition btn-hover';
+                btn.innerText = `${String.fromCharCode(65 + index)}. ${opt}`;
+                btn.onclick = () => checkAnswer(opt, qData.a);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selected, correct) {
+            if(selected === correct) {
+                kuisState.score += 5; // 20 * 5 = 100
+                playSound('success');
+            } else {
+                playSound('click');
+            }
+            
+            kuisState.current++;
+            if(kuisState.current < 20) {
+                renderKuis();
+            } else {
+                endKuis();
+            }
+        }
+
+        function endKuis() {
+            clearInterval(APP_STATE.quizTimer);
+            document.getElementById('kuis-bar').style.width = `100%`;
+            APP_STATE.quizScore = kuisState.score;
+            
+            let html = `Nilai Anda: <strong>${kuisState.score}</strong>/100<br><br>`;
+            let icon = 'success';
+            
+            if(kuisState.score >= 80) {
+                html += `Luar biasa! Anda lulus dan mendapatkan Badge Bintang Emas.`;
+                showCertificate();
+            } else {
+                html += `Jangan menyerah! Pelajari lagi materinya dan coba lagi.`;
+                icon = 'warning';
+                Swal.fire({ title: 'Kuis Selesai', html: html, icon: icon, confirmButtonText: 'Kembali ke Dashboard' }).then(() => navigate('dashboard'));
+            }
+        }
+
+        function showCertificate() {
+            // Confetti effect
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            Swal.fire({
+                title: 'SELAMAT!',
+                html: `
+                    <div class="border-4 border-double border-yellow-500 p-8 m-4 bg-yellow-50 rounded-lg text-center">
+                        <i class="fas fa-medal text-6xl text-yellow-500 mb-4 drop-shadow-lg"></i>
+                        <h2 class="text-2xl font-extrabold text-gray-800 uppercase">Sertifikat Digital</h2>
+                        <p class="text-sm text-gray-600 mt-2">Diberikan kepada siswa hebat yang telah menyelesaikan Kuis MPI GAYA BESUREK dengan nilai</p>
+                        <p class="text-5xl font-bold text-primary my-4">${APP_STATE.quizScore}</p>
+                        <p class="text-xs text-gray-500 font-bold border-t border-gray-300 pt-2 mt-4">NIDA HERMINA - Universitas Bengkulu</p>
+                    </div>
+                `,
+                width: 600,
+                confirmButtonText: 'Tutup & Kembali',
+                confirmButtonColor: '#2563EB',
+                allowOutsideClick: false
+            }).then(() => {
+                navigate('dashboard');
             });
         }
     </script>
